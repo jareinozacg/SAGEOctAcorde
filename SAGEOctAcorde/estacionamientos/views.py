@@ -117,9 +117,10 @@ def estacionamiento_reserva(request, _id):
 
                 # Validamos los horarios con los horario de salida y entrada
                 m_validado = validarHorarioReserva(inicio_reserva, final_reserva, estacion.Reservas_Inicio, estacion.Reservas_Cierre)
-
+                horario_aceptado = m_validado[0]
+                
                 # Si no es valido devolvemos el request
-                if not m_validado[0]:
+                if not horario_aceptado:
                     return render(request, 'templateMensaje.html', {'color':'red', 'mensaje': m_validado[1]})
 
                 if recrearTablaMarzullo:
@@ -131,34 +132,25 @@ def estacionamiento_reserva(request, _id):
                         reservas = reservas.values_list('InicioReserva', 'FinalReserva')
                         tablaMarzullo = crearTablaMarzullo(reservas)
 
-                    tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
-                    
-                # Si esta en un rango valido, procedemos a buscar en la lista
-                # el lugar a insertar
-                #tablaMarzullo = TuplaMarzullo.objects.filter(Estacionamiento = estacion)
-                
+                           
                 if puedeReservarALas(inicio_reserva, final_reserva,estacion.NroPuesto,tablaMarzullo):
                     
-            
-                    #===========================================================
-                    # reservar(inicio_reserva, final_reserva,puesto)
-                    #===========================================================
-                    #tablaMarzullo.
                     reservado = ReservasModel(
-                                        Estacionamiento = estacion,
-                                        InicioReserva = inicio_reserva,
-                                        FinalReserva = final_reserva
-                                    )
-                    reservado.save()
+                        Estacionamiento = estacion,
+                        InicioReserva = inicio_reserva,
+                        FinalReserva = final_reserva
+                    )
                     
-                    #Solo incorporamos la ultima reserva agregada
+                    reservado.save() # Agregar la nueva reserva a la base de datos
+                    
+                    #Solo incorporamos la reserva aceptada en formato de Marzullo
                     tablaMarzullo.append((inicio_reserva, -1))
                     tablaMarzullo.append((final_reserva ,  1))
                     recrearTablaMarzullo = True
                     
                     return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
-                else:
-                    return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
+                
+                return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
     else:
         form = EstacionamientoReserva()
 
