@@ -1,5 +1,6 @@
 # Archivo con funciones de control para SAGE
 import datetime
+from datetime import timedelta, date
 
 # Las Tuplas de cada puesto deben tener los horarios de inicio y de cierre para que
 # pueda funcionar [(7:00,7:00), (19:00,19:00)]
@@ -115,8 +116,9 @@ def validarHorarioReserva(ReservaInicio, ReservaFin, HorarioApertura, HorarioCie
 	return (True, '')
 
 def calculoPrecio(hin, hout):
-	horaEntrada = hin.split(':')
-	horaSalida = hout.split(':')
-	hEntrada = datetime.time(horaEntrada[0], horaEntrada[1], 0)
-	hSalida = datetime.time(horaSalida[0], horaSalida[1], 0)
+	d = datetime.date(1111, 1, 11)
+	fchcomienzo = datetime.datetime.combine(d, hin)
+	fchfinal = datetime.datetime.combine(d, hout)
+	tiempoTotal = fchfinal - fchcomienzo
+	return tiempoTotal
 

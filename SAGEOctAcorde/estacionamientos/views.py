@@ -150,8 +150,8 @@ def estacionamiento_reserva(request, _id):
                                         FinalReserva = final_reserva
                                     )
                     reservaFinal.save()"""
-                    calculoPrecio(inicio_reserva, final_reserva)
-                    return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'La reserva es posible'},)
+                    string = str(calculoPrecio(inicio_reserva, final_reserva))
+                    return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':string},)
                 else:
                     return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
     else:
