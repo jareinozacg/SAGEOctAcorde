@@ -552,286 +552,291 @@ class SimpleFormTestCase(TestCase):
 		x = validarHorarioReserva(ReservaInicio, ReservaFin, HoraApertura, HoraCierre)
 		self.assertEqual(x, (False, 'El horario de cierre de reserva debe estar en un horario válido'))
 
-	# malicia
-	def test_Reservacion_CamposVacios(self):
-		form_data = {'inicio':datetime.time(6, 0), 'final':datetime.time(12, 0)}
-		form = EstacionamientoReserva(data = form_data)
-		self.assertEqual(form.is_valid(), True)
 
-
-	def testEstacionamientoVacio(self): #Esquina Manuel y Chino
+	def testEstacionamientoVacio(self): #Frontera
 		capacidad = 10
-		reserva = (6,18)
-		reservas = []
+		horaIni = datetime.time(6)
+		horaFin = datetime.time(18)
+		tablaMarzullo = []
 		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
+		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
 
-	def testReservarUnaHoraEnHoraReservada(self): #Frontera (Manuel) Linea 35
+	def testReservarUnaHoraEnHoraReservada(self): #Frontera
 		
 		capacidad = 10
-		reservas  = [(9,11)]*capacidad
-		reserva = (9,10)
+		horaIni = datetime.time(9)
+		horaFin = datetime.time(11)
+		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
+						 (datetime.time(11) , 1 , 1*capacidad)] * capacidad		
+		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
+
 		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
+		assert len(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)) == 1
 	
 	def testReservarUnaHoraEnHoraMayorALaReservada(self): #Frontera (Manuel) Linea 45
 		capacidad = 10
-		reservas  = [(9,11)]*capacidad
-		reserva = (15,16)
+		horaIni = datetime.time(15)
+		horaFin = datetime.time(16)
+		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
+						 (datetime.time(11) , 1 , 1)]*capacidad
+		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
 		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-	
+		
+		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
+		
 	def testReservarUnaHoraEnHoraMenorALaReservada(self): #Frontera (Manuel) Linea 55
 		capacidad = 10
-		reservas  = [(9,11)]*capacidad
-		reserva = (7,8)
+		horaIni = datetime.time(7)
+		horaFin = datetime.time(8)
+		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
+						 (datetime.time(11) , 1 , 1)]*capacidad
+		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
 		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
+		
+		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
 	
-	
-	def testReservaDosHorasEnReservaMaxima(self): # Esquina (Manuel) Linea 65
-		capacidad = 10
-		reservas  = [(8,10),(15,17)]*capacidad
-		reserva = (15,16)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-		
-	def testReserva1HoraEntreCompletaReserva(self): # Esquina (Manuel) Linea 74
-		capacidad = 10
-		reservas  = [(6,10),(11,18)]*capacidad
-		reserva = (10,11)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-		
-	
-	def testReserva1HoraAlInicioEntreCompletaReserva(self): #Esquina (Manuel) Linea 83 
-		capacidad = 10
-		reservas  = [(7,18)]*capacidad
-		reserva = (6,7)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-	
-	def testReserva1HoraAlFinalEntreCompletaReserva(self): #Esquina(Manuel) Linea 91
-		capacidad = 10
-		reservas  = [(6,17)]*capacidad
-		reserva = (17,18)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-	
-	def testReserva1HoraInicioConCompletaReserva(self): # Esquina (Manuel) Linea 99
-		capacidad = 10
-		reservas  = [(6,18)]*capacidad
-		reserva = (6,7)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-	
-	def testReserva1HoraFinalConCompletaReserva(self): #Esquina (Manuel) Linea 107
-		capacidad = 10
-		reservas  = [(6,18)]*capacidad
-		reserva = (17,18)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-	
-	
-	def testReserva1HoraDespuesSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 115
-		capacidad = 10
-		reservas  = [(6,7),(7,8)]*capacidad
-		reserva = (8,9)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-	
-	
-	def testReserva1HoraAntesSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 124
-		capacidad = 10
-		reservas  = [(7,8),(8,9)]*capacidad
-		reserva = (6,7)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-	
-	
-	def testReserva1HoraEntrePrimeraSobreposicionReservas(self): #esquina maliciosa  (Manuel) Linea 133
-		capacidad = 10
-		reservas  = [(6,7),(7,8)]*capacidad
-		reserva = (6,7)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-	
-	
-	def testReserva1HoraEntreSegundaSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 142
-		capacidad = 10
-		reservas  = [(6,7),(7,8)]*capacidad
-		reserva = (7,8)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-	
-	def testReservaCeroHoras(self): #Esquina  (Manuel) Linea 152
-		pass
-	
-	def testReservaAntesdelas6(self): # Malicia frontera (Manuel) Linea 156
-		pass
-	
-	def testReservaLuegodelas18(self): #Malicia (Manuel) Linea 161
-		pass
-	
-	def testReservaHoraFinalMenorHoraInicialValidas(self): #Malicia (Manuel) Linea 166
-		pass
-	
-	def testReservaAntesdeLas6Inclusive(self): #Malicia Frontera (Manuel) Linea 171
-		pass
-	
-	def testReservaLuegodelas18Inclusive(self): #Malicia frontera (Manuel) Linea 176
-		pass
-				
-	def testReservacionInvalida_EntradaMenor(self): # Frontera (Daniel) Linea 52
-		pass
-	
-	def testReservacionInvalida_HoraEntradaMayor(self): #Frontera (Daniel) Buena la idea pero mal horario
-		pass
-
-	def testReservaSinCupoExtremosIguales(self): #Esquina (Chino) Linea 27
-		capacidad = 1
-		reservas  = [(8,10)]*capacidad
-		reserva = (8,10)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-	
-	def testReservaSinCupoExtremosDiferentes(self): # Esquina (Chino) Linea 33
-		capacidad = 1
-		reservas  = [(8,12)]*capacidad
-		reserva = (9,13)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-		
-	def testReservaConCupo(self): #Esquina (Chino) Linea 39
-		capacidad = 1
-		reservas  = [(8,12),(14,17)]*capacidad
-		reserva = (12,14)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-		
-	def testReservaConCupoDosPuestos(self): # Esquina (Chino) Linea 45 , modificar segundo horario
-		capacidad = 2
-		reservas  = [(8,12),(14,17)]*capacidad
-		reserva = (12,14)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-	
-	def testReservaSinCupoDosExtremos(self): #Esquina (Chino) Linea 52 (se puede dividir en dos pruebas por cada extremo)
-		capacidad = 1
-		reservas  = [(8,12),(14,17)]*capacidad
-		reserva = (11,15)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-	
-	def testReservaSinCupoDosExtremosDosPuestos(self): #Esquina (Chino) Linea 58 (se puede dividir , arreglar segundo horario)
-		capacidad = 1
-		reservas  = [(8,12),(14,17)]*capacidad
-		reserva = (12,15)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		self.assertEqual(estacionamiento.reservar(*reserva),False)
-		
-	def testPuestosLlenos(self): #Esquinas maliciosas  (Chino) Linea 65 (dividir tal vez?) cuestionable...
-		capacidad = 3
-		reservas = [(6,17),(17,18), 
-					(6,8), (8,18), 
-					(6,12),(12,13),(13,18)]
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)
-		
-		self.assertEqual(estacionamiento.reservar(17,18),False)
-		self.assertEqual(estacionamiento.reservar(6,7),False)
-		self.assertEqual(estacionamiento.reservar(6,18),False)
-	
-	def testPuestoSuperLlenosconAlgunPuestoVacio(self): #Esquina maliciosa (Chino) Linea 83
-		capacidad = 10
-		reservas  = [(6,18)]*(capacidad-1) + [(6,17)] 
-		reserva = (17,18)
-		
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		assert estacionamiento.reservar(*reserva)
-	
-	def testJesus1(self): # Conjunto de reservaciones sin objetivo unico (Jesus) Linea 10
-		capacidad = 10
-		reservas = []
-		a_reservar = ((8,12), (11,13), (10,12), (9,12), (7,12), (10,12), (7,12),(9,15), (10,18), (11, 14))
-		estacionamiento = Estacionamiento(capacidad,reservas)		
-		
-		for reserva in a_reservar:
-			assert estacionamiento.reservar(*reserva)
-	
-	def testFullParking(self):#Casos por malicia (Jesus) Linea 29
-		capacidad = 10
-		a_reservar = ((8,12), (11,13), (10,12), (9,12), (7,12), (10,12), (7,12),(9,15), (10,18), (11, 14))
-		estacionamiento = Estacionamiento(capacidad,[])		
-		
-		for reserva in a_reservar:
-			assert estacionamiento.reservar(*reserva)
-		
-		self.assertEqual(estacionamiento.reservar(9,13),False)
-		
-	def testReservaMaximaContenidaReservaUsuario(self): # Esquina agregada por Manuel
-		estacionamiento = Estacionamiento(1,[(11,12)])		
-		self.assertEqual(estacionamiento.reservar(10,13),False)
-
-	def testReservaMaximaContenidaReservaUsuarioDisponible(self): # Esquina agregada por Manuel
-		estacionamiento = Estacionamiento(2,[(11,12)])
-		self.assertEqual(estacionamiento.reservar(10,13),True)
-
-	def testReservaMaximaContenidaReservaUsuarioNoDisponibleDos(self): # Esquina agregada por Manuel
-		estacionamiento = Estacionamiento(2,[(11,12)]*2)
-		self.assertEqual(estacionamiento.reservar(10,13),False)
-		
-	def testCarrosMismoHorario(self):# Conjunto de reservaciones sin objetivo unico (Daniel) Linea 60
-		capacidad = 10
-		a_reservar = ((10, 12),(8, 12),(10, 12),(10, 12),(10, 12),(7, 12),(6, 12),(9, 12),(10, 12),(10, 12))
-		estacionamiento = Estacionamiento(capacidad,[])		
-		
-		for reserva in a_reservar:
-			assert estacionamiento.reservar(*reserva)
-		
-	def testOnceCarrosMismoHorario(self): # Conjunto de reservaciones sin objetivo unico (Daniel) Linea 63
-		capacidad = 10
-		a_reservar = ((10, 12),(8, 12),(10, 12),(10, 12),(10, 12),(7, 12),(6, 12),(9, 12),(10, 12),(10, 12))
-		estacionamiento = Estacionamiento(capacidad,[])		
-		
-		for reserva in a_reservar:
-			assert estacionamiento.reservar(*reserva)
-		
-		self.assertEqual(estacionamiento.reservar(7,12),False)
-		
-	def testExtremadamenteGrandeUnaHoraFinalNoDisponible(self): # Esquina agregada por Manuel
-		capacidad =4200
-		estacionamiento = Estacionamiento(capacidad,[(6,18)]*capacidad)		
-		self.assertEqual(estacionamiento.reservar(17,18),False)
-	
-	def testExtremadamenteGrandeUnaHoraInicioNoDisponible(self): # Esquina agregada por Manuel
-		capacidad =4200
-		estacionamiento = Estacionamiento(capacidad,[(6,18)]*capacidad)		
-		
-		self.assertEqual(estacionamiento.reservar(6,7),False)
-
-	def testExtremadamenteGrandeUnaHoraDisponible(self): # Esquina agregada por Manuel
-		capacidad = 1000
-		estacionamiento = Estacionamiento(capacidad,[(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14),(15,16),(17,18)]*(capacidad - 1) +\
-						 [(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14),(15,16)])
-		self.assertEqual(estacionamiento.reservar(17,18),True)
+#===============================================================================
+# 	
+# 	def testReservaDosHorasEnReservaMaxima(self): # Esquina (Manuel) Linea 65
+# 		capacidad = 10
+# 		reservas  = [(8,10),(15,17)]*capacidad
+# 		reserva = (15,16)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 		
+# 	def testReserva1HoraEntreCompletaReserva(self): # Esquina (Manuel) Linea 74
+# 		capacidad = 10
+# 		reservas  = [(6,10),(11,18)]*capacidad
+# 		reserva = (10,11)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 		
+# 	
+# 	def testReserva1HoraAlInicioEntreCompletaReserva(self): #Esquina (Manuel) Linea 83 
+# 		capacidad = 10
+# 		reservas  = [(7,18)]*capacidad
+# 		reserva = (6,7)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testReserva1HoraAlFinalEntreCompletaReserva(self): #Esquina(Manuel) Linea 91
+# 		capacidad = 10
+# 		reservas  = [(6,17)]*capacidad
+# 		reserva = (17,18)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testReserva1HoraInicioConCompletaReserva(self): # Esquina (Manuel) Linea 99
+# 		capacidad = 10
+# 		reservas  = [(6,18)]*capacidad
+# 		reserva = (6,7)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	def testReserva1HoraFinalConCompletaReserva(self): #Esquina (Manuel) Linea 107
+# 		capacidad = 10
+# 		reservas  = [(6,18)]*capacidad
+# 		reserva = (17,18)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	
+# 	def testReserva1HoraDespuesSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 115
+# 		capacidad = 10
+# 		reservas  = [(6,7),(7,8)]*capacidad
+# 		reserva = (8,9)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	
+# 	def testReserva1HoraAntesSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 124
+# 		capacidad = 10
+# 		reservas  = [(7,8),(8,9)]*capacidad
+# 		reserva = (6,7)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	
+# 	def testReserva1HoraEntrePrimeraSobreposicionReservas(self): #esquina maliciosa  (Manuel) Linea 133
+# 		capacidad = 10
+# 		reservas  = [(6,7),(7,8)]*capacidad
+# 		reserva = (6,7)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	
+# 	def testReserva1HoraEntreSegundaSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 142
+# 		capacidad = 10
+# 		reservas  = [(6,7),(7,8)]*capacidad
+# 		reserva = (7,8)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	def testReservaCeroHoras(self): #Esquina  (Manuel) Linea 152
+# 		pass
+# 	
+# 	def testReservaAntesdelas6(self): # Malicia frontera (Manuel) Linea 156
+# 		pass
+# 	
+# 	def testReservaLuegodelas18(self): #Malicia (Manuel) Linea 161
+# 		pass
+# 	
+# 	def testReservaHoraFinalMenorHoraInicialValidas(self): #Malicia (Manuel) Linea 166
+# 		pass
+# 	
+# 	def testReservaAntesdeLas6Inclusive(self): #Malicia Frontera (Manuel) Linea 171
+# 		pass
+# 	
+# 	def testReservaLuegodelas18Inclusive(self): #Malicia frontera (Manuel) Linea 176
+# 		pass
+# 				
+# 	def testReservacionInvalida_EntradaMenor(self): # Frontera (Daniel) Linea 52
+# 		pass
+# 	
+# 	def testReservacionInvalida_HoraEntradaMayor(self): #Frontera (Daniel) Buena la idea pero mal horario
+# 		pass
+# 
+# 	def testReservaSinCupoExtremosIguales(self): #Esquina (Chino) Linea 27
+# 		capacidad = 1
+# 		reservas  = [(8,10)]*capacidad
+# 		reserva = (8,10)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	def testReservaSinCupoExtremosDiferentes(self): # Esquina (Chino) Linea 33
+# 		capacidad = 1
+# 		reservas  = [(8,12)]*capacidad
+# 		reserva = (9,13)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 		
+# 	def testReservaConCupo(self): #Esquina (Chino) Linea 39
+# 		capacidad = 1
+# 		reservas  = [(8,12),(14,17)]*capacidad
+# 		reserva = (12,14)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 		
+# 	def testReservaConCupoDosPuestos(self): # Esquina (Chino) Linea 45 , modificar segundo horario
+# 		capacidad = 2
+# 		reservas  = [(8,12),(14,17)]*capacidad
+# 		reserva = (12,14)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testReservaSinCupoDosExtremos(self): #Esquina (Chino) Linea 52 (se puede dividir en dos pruebas por cada extremo)
+# 		capacidad = 1
+# 		reservas  = [(8,12),(14,17)]*capacidad
+# 		reserva = (11,15)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	def testReservaSinCupoDosExtremosDosPuestos(self): #Esquina (Chino) Linea 58 (se puede dividir , arreglar segundo horario)
+# 		capacidad = 1
+# 		reservas  = [(8,12),(14,17)]*capacidad
+# 		reserva = (12,15)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 		
+# 	def testPuestosLlenos(self): #Esquinas maliciosas  (Chino) Linea 65 (dividir tal vez?) cuestionable...
+# 		capacidad = 3
+# 		reservas = [(6,17),(17,18), 
+# 					(6,8), (8,18), 
+# 					(6,12),(12,13),(13,18)]
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)
+# 		
+# 		self.assertEqual(estacionamiento.reservar(17,18),False)
+# 		self.assertEqual(estacionamiento.reservar(6,7),False)
+# 		self.assertEqual(estacionamiento.reservar(6,18),False)
+# 	
+# 	def testPuestoSuperLlenosconAlgunPuestoVacio(self): #Esquina maliciosa (Chino) Linea 83
+# 		capacidad = 10
+# 		reservas  = [(6,18)]*(capacidad-1) + [(6,17)] 
+# 		reserva = (17,18)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testJesus1(self): # Conjunto de reservaciones sin objetivo unico (Jesus) Linea 10
+# 		capacidad = 10
+# 		reservas = []
+# 		a_reservar = ((8,12), (11,13), (10,12), (9,12), (7,12), (10,12), (7,12),(9,15), (10,18), (11, 14))
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		
+# 		for reserva in a_reservar:
+# 			assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testFullParking(self):#Casos por malicia (Jesus) Linea 29
+# 		capacidad = 10
+# 		a_reservar = ((8,12), (11,13), (10,12), (9,12), (7,12), (10,12), (7,12),(9,15), (10,18), (11, 14))
+# 		estacionamiento = Estacionamiento(capacidad,[])		
+# 		
+# 		for reserva in a_reservar:
+# 			assert estacionamiento.reservar(*reserva)
+# 		
+# 		self.assertEqual(estacionamiento.reservar(9,13),False)
+# 		
+# 	def testReservaMaximaContenidaReservaUsuario(self): # Esquina agregada por Manuel
+# 		estacionamiento = Estacionamiento(1,[(11,12)])		
+# 		self.assertEqual(estacionamiento.reservar(10,13),False)
+# 
+# 	def testReservaMaximaContenidaReservaUsuarioDisponible(self): # Esquina agregada por Manuel
+# 		estacionamiento = Estacionamiento(2,[(11,12)])
+# 		self.assertEqual(estacionamiento.reservar(10,13),True)
+# 
+# 	def testReservaMaximaContenidaReservaUsuarioNoDisponibleDos(self): # Esquina agregada por Manuel
+# 		estacionamiento = Estacionamiento(2,[(11,12)]*2)
+# 		self.assertEqual(estacionamiento.reservar(10,13),False)
+# 		
+# 	def testCarrosMismoHorario(self):# Conjunto de reservaciones sin objetivo unico (Daniel) Linea 60
+# 		capacidad = 10
+# 		a_reservar = ((10, 12),(8, 12),(10, 12),(10, 12),(10, 12),(7, 12),(6, 12),(9, 12),(10, 12),(10, 12))
+# 		estacionamiento = Estacionamiento(capacidad,[])		
+# 		
+# 		for reserva in a_reservar:
+# 			assert estacionamiento.reservar(*reserva)
+# 		
+# 	def testOnceCarrosMismoHorario(self): # Conjunto de reservaciones sin objetivo unico (Daniel) Linea 63
+# 		capacidad = 10
+# 		a_reservar = ((10, 12),(8, 12),(10, 12),(10, 12),(10, 12),(7, 12),(6, 12),(9, 12),(10, 12),(10, 12))
+# 		estacionamiento = Estacionamiento(capacidad,[])		
+# 		
+# 		for reserva in a_reservar:
+# 			assert estacionamiento.reservar(*reserva)
+# 		
+# 		self.assertEqual(estacionamiento.reservar(7,12),False)
+# 		
+# 	def testExtremadamenteGrandeUnaHoraFinalNoDisponible(self): # Esquina agregada por Manuel
+# 		capacidad =4200
+# 		estacionamiento = Estacionamiento(capacidad,[(6,18)]*capacidad)		
+# 		self.assertEqual(estacionamiento.reservar(17,18),False)
+# 	
+# 	def testExtremadamenteGrandeUnaHoraInicioNoDisponible(self): # Esquina agregada por Manuel
+# 		capacidad =4200
+# 		estacionamiento = Estacionamiento(capacidad,[(6,18)]*capacidad)		
+# 		
+# 		self.assertEqual(estacionamiento.reservar(6,7),False)
+# 
+# 	def testExtremadamenteGrandeUnaHoraDisponible(self): # Esquina agregada por Manuel
+# 		capacidad = 1000
+# 		estacionamiento = Estacionamiento(capacidad,[(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14),(15,16),(17,18)]*(capacidad - 1) +\
+# 						 [(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14),(15,16)])
+# 		self.assertEqual(estacionamiento.reservar(17,18),True)
+#===============================================================================

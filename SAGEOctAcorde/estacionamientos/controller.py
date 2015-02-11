@@ -49,10 +49,9 @@ def compararTuplasMarzullo(tupla1, tupla2):
 	if tupla1[0] > tupla2[0]: return 1
 	if tupla1[0] < tupla2[0]: return -1
 
-	if tupla1[0] == tupla2[0]:
-		if tupla1[1] >= tupla2[1]:
-			return -1
-		return 1
+	if tupla1[1] >= tupla2[1]: return -1
+	
+	return 1
 
 def interseccion(A_inicio,A_final,B_inicio,B_final):
 	''' 
@@ -84,7 +83,7 @@ def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
 		
 		if (cnt == capacidad) and \
 			interseccion(horaIni, horaFin, beststart, bestend):
-			return []
+			return [-1]
 		
 	return puestosOcupados
 	
