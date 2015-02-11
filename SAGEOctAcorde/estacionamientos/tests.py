@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 from django.test import Client
 from django.test import TestCase
 import unittest
-
+from datetime import datetime
 from estacionamientos.controller import *
 from estacionamientos.forms import *
 from estacionamientos.forms import *
@@ -626,14 +625,26 @@ class SimpleFormTestCase(TestCase):
 		capacidad = 10
 		horaIni = self.formatHora("16:00")
 		horaFin = self.formatHora("17:00")
-		puestosOcupados = self.crearTuplasHoras([("16:00", "18:00"), ("3:00", "9:00")])
-		
+		puestosOcupados = self.crearTuplasHoras(                              \
+					[("16:00", "18:00"), ("3:00", "9:00")]                    \
+		)
 		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
 		# Opcion 1
 		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 		# Opcion 2
 		self.assertRaises(AssertionError, puedeReservarALas, horaIni,horaFin,capacidad,tablaMarzullo)
+		
+	def testReservaDosHorasEnReservaMaxima(self): # Esquina (Manuel) Linea 65
+		capacidad = 10
+		horaIni = self.formatHora("15:00")
+		horaFin = self.formatHora("16:00")
+		puestosOcupados = self.crearTuplasHoras(                              \
+					[("08:00", "10:00"), ("15:00", "17:00")]*capacidad        \
+		) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 #===============================================================================
+#
 # 	
 # 	def testReservaDosHorasEnReservaMaxima(self): # Esquina (Manuel) Linea 65
 # 		capacidad = 10
@@ -815,7 +826,7 @@ class SimpleFormTestCase(TestCase):
 # 	def testJesus1(self): # Conjunto de reservaciones sin objetivo unico (Jesus) Linea 10
 # 		capacidad = 10
 # 		reservas = []
-# 		a_reservar = ((8,12), (11,13), (10,12), (9,12), (7,12), (10,12), (7,12),(9,15), (10,18), (11, 14))
+# # 		a_reservar = ((8,12), (11,13), (10,12), (9,12), (7,12), (10,12), (7,12),(9,15), (10,18), (11, 14))
 # 		estacionamiento = Estacionamiento(capacidad,reservas)		
 # 		
 # 		for reserva in a_reservar:
