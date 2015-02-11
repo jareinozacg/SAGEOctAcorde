@@ -58,6 +58,5 @@ class Estacionamiento(models.Model):
 	
 class ReservasModel(models.Model):
 	Estacionamiento = models.ForeignKey(Estacionamiento)
-	Puesto = models.IntegerField()
 	InicioReserva = models.TimeField()
 	FinalReserva = models.TimeField()

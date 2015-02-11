@@ -1,6 +1,6 @@
 # Archivo con funciones de control para SAGE
 import datetime
-import functools
+
 
 # chequeo de horarios de extended
 def HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin):
@@ -82,8 +82,8 @@ def crearTablaMarzullo(reservas):
 	listaTuplas = []
 	
 	for elemReserva in reservas:
-		tuplaIni = (elemReserva[1], -1, elemReserva[0])
-		tuplaFin = (elemReserva[2],  1, elemReserva[0])
+		tuplaIni = (elemReserva[1], -1)
+		tuplaFin = (elemReserva[2],  1)
 		listaTuplas.append(tuplaIni)
 		listaTuplas.append(tuplaFin)
 

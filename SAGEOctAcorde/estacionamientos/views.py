@@ -8,6 +8,7 @@ from estacionamientos.forms import EstacionamientoExtendedForm
 from estacionamientos.forms import EstacionamientoForm
 from estacionamientos.forms import EstacionamientoReserva
 from estacionamientos.models import Estacionamiento, ReservasModel 
+import functools
 
 
 tablaMarzullo = []
@@ -52,6 +53,9 @@ def estacionamientos_all(request):
     return render(request, 'base.html', {'form': form, 'estacionamientos': estacionamientos})
 
 def estacionamiento_detail(request, _id):
+    global tablaMarzullo, recrearTablaMarzullo
+    tablaMarzullo = []
+    recrearTablaMarzullo = True
     _id = int(_id)
     # Verificamos que el objeto exista antes de continuar
     try:
@@ -124,7 +128,7 @@ def estacionamiento_reserva(request, _id):
                         #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
                         reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
                         #Obtiene los valores que interesan de cada reserva en forma de una tupla de tres elementos
-                        reservas = reservas.values_list('Puesto', 'InicioReserva', 'FinalReserva')
+                        reservas = reservas.values_list('InicioReserva', 'FinalReserva')
                         tablaMarzullo = crearTablaMarzullo(reservas)
 
                     tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
@@ -132,31 +136,24 @@ def estacionamiento_reserva(request, _id):
                 # Si esta en un rango valido, procedemos a buscar en la lista
                 # el lugar a insertar
                 #tablaMarzullo = TuplaMarzullo.objects.filter(Estacionamiento = estacion)
-                puestosOcupados = puedeReservarALas(inicio_reserva, final_reserva,estacion.NroPuesto,tablaMarzullo)
                 
-                if puestosOcupados:
+                if puedeReservarALas(inicio_reserva, final_reserva,estacion.NroPuesto,tablaMarzullo):
                     
-                    #Buscamos un puesto libre
-                    for i in range(estacion.NroPuesto):
-                        if i not in puestosOcupados: #Si no 
-                            puesto = i + 1
-                            break
-                    
+            
                     #===========================================================
                     # reservar(inicio_reserva, final_reserva,puesto)
                     #===========================================================
                     #tablaMarzullo.
                     reservado = ReservasModel(
                                         Estacionamiento = estacion,
-                                        Puesto = puesto,
                                         InicioReserva = inicio_reserva,
                                         FinalReserva = final_reserva
                                     )
                     reservado.save()
                     
                     #Solo incorporamos la ultima reserva agregada
-                    tablaMarzullo.append((inicio_reserva, -1 , puesto))
-                    tablaMarzullo.append((final_reserva ,  1 , puesto))
+                    tablaMarzullo.append((inicio_reserva, -1))
+                    tablaMarzullo.append((final_reserva ,  1))
                     recrearTablaMarzullo = True
                     
                     return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
