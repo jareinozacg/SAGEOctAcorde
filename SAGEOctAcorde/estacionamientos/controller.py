@@ -1,5 +1,6 @@
 # Archivo con funciones de control para SAGE
 import datetime
+import functools
 
 # Las Tuplas de cada puesto deben tener los horarios de inicio y de cierre para que
 # pueda funcionar [(7:00,7:00), (19:00,19:00)]
@@ -27,81 +28,6 @@ def HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin):
 		return (False, 'El horario de cierre de estacionamiento debe ser mayor o igual al horario de finalización de reservas')
 	return (True, '')
 
-
-# busca un puesta en el estacionamiento
-def buscar(hin, hout, estacionamiento):
-	if not isinstance(estacionamiento, list):
-		return (-1, -1, False)
-	if len(estacionamiento) == 0:
-		return (-1, -1, False)
-	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
-		return (-1, -1, False)
-	for i in range(len(estacionamiento)):
-		posicion = busquedaBin(hin, hout, estacionamiento[i])
-		if posicion[1] == True:
-			return (i, posicion[0], posicion[1])
-	return (-1, -1, False)
-
-def binaria(valor, inicio, fin, lista):
-	if inicio == fin:
-		return inicio
-	centro = (inicio + fin) // 2
-	if lista[centro][0] > valor:
-		return binaria(valor, inicio, centro, lista)
-	if lista[centro][0] < valor:
-		return binaria(valor, centro + 1, fin, lista)
-	return centro
-
-# Busca en una lista ordenada la posicion en la que una nueva tupla
-# puede ser insertado, y ademas devuelve un booleano que dice si la
-# tupla puede ser insertada, es decir que sus valores no solapen alguno
-# ya existente.
-# Precondición: la lista debe tener ya la mayor y menor posible tupla
-def busquedaBin(hin, hout, listaTuplas):
-	# ln = len(listaTuplas)
-	if not isinstance(listaTuplas, list):
-		return (0, False)
-	if len(listaTuplas) == 0:
-		return (0, True)
-	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
-		return (0, False)
-	index = binaria(hin, 0, len(listaTuplas), listaTuplas)
-	if index == 0:
-		index = index + 1
-	if listaTuplas[index][0] >= hout and listaTuplas[index - 1][1] <= hin:
-		return (index, True)
-	else:
-		return (index, False)
-
-# inserta ordenadamente por hora de inicio
-def insertarReserva(hin, hout, puesto, listaReserva):
-	# no verifica precondicion, se supone que se hace buscar antes para ver si se puede agregar
-	if not isinstance(listaReserva, list):
-		return None
-	if len(listaReserva) == 0:
-		return listaReserva
-	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
-		return listaReserva
-	tupla = (hin, hout)
-	listaReserva.insert(puesto, tupla)
-	# estacionamiento[puesto].sort()
-	return listaReserva
-
-def reservar(hin, hout, estacionamiento):
-	if not isinstance(estacionamiento, list):
-		return 1
-	if len(estacionamiento) == 0:
-		return 1
-	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
-		return 1
-	puesto = buscar(hin, hout, estacionamiento)
-	if puesto[2] != False:
-		estacionamiento[puesto[0]] = insertarReserva(hin, hout, puesto[1], estacionamiento[puesto[0]])
-		return estacionamiento
-	else:
-		return 1
-
-
 def validarHorarioReserva(ReservaInicio, ReservaFin, HorarioApertura, HorarioCierre):
 
 	if ReservaInicio >= ReservaFin:
@@ -113,4 +39,102 @@ def validarHorarioReserva(ReservaInicio, ReservaFin, HorarioApertura, HorarioCie
 	if ReservaInicio < HorarioApertura:
 		return (False, 'El horario de cierre de reserva debe estar en un horario válido')
 	return (True, '')
+
+
+def compararTuplasMarzullo(tupla1, tupla2):
+	'''Organiza las tuplas primero por offset y luego por tipo
+       Reglas: en resumen si x > y, se debe retornar 1; si y > x, se debe retornar -1
+    '''
+	
+	if tupla1[0] > tupla2[0]: return 1
+	if tupla1[0] < tupla2[0]: return -1
+
+	if tupla1[0] == tupla2[0]:
+		if tupla1[1] >= tupla2[1]:
+			return -1
+		return 1
+
+def interseccion(A_inicio,A_final,B_inicio,B_final):
+	''' 
+    Funcion que Dado dos intervalos (a1,b1),(a2,b2)
+    Indica si existe interseccion entre ellas
+    '''
+	inicioMasLargo = max(A_inicio, B_inicio)
+	finalMasCorto = min(A_final, B_final)
+	return inicioMasLargo < finalMasCorto
+
+
+def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
+	'Verifica usando Marzullo si una reserva esta disponible'
+	
+	puestosOcupados =  [-1]
+	
+	best, beststart, bestend, cnt = 0,0,0,0
+	for i in range(0, len(tablaMarzullo)-1):
+		cnt = cnt - tablaMarzullo[i][1]
+	
+		if cnt >= best:
+			best, beststart  = cnt, tablaMarzullo[i][0]
+			bestend = tablaMarzullo[i + 1][0]
+			
+			if interseccion(horaIni, horaFin, beststart, bestend):
+				puestosOcupados.append(tablaMarzullo[i][2])
+		
+		if tablaMarzullo[i][0] >= horaFin: return puestosOcupados
+		
+		if (cnt == capacidad) and \
+			interseccion(horaIni, horaFin, beststart, bestend):
+			return []
+		
+	return puestosOcupados
+	
+
+def crearTablaMarzullo(puestos):
+	''' Funcion que dada una lista de reservaciones, devuelve 
+		la tabla(lista) ordenada asociada al algoritmo de Marzullo'''
+	
+	listaTuplas = []
+	
+	for puesto in puestos:
+		tuplaIni = (puesto[1], -1, puesto[0])
+		tuplaFin = (puesto[2],  1, puesto[0])
+		listaTuplas.append(tuplaIni)
+		listaTuplas.append(tuplaFin)
+
+	#===========================================================================
+	# '''Funcion que dada una tupla (offset,type) ordena por offset y en
+	# caso de ser iguales, ordena por type (-1 tiene mayor precedencia)
+	# ejmp: [(5,1),(8,1),(8,-1)] -> [(5,1),(8,-1),(8,1)]'''
+	# listaTuplas.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
+	#===========================================================================
+
+	return listaTuplas
+	
+#===============================================================================
+# # inserta ordenadamente por hora de inicio
+# def insertarReserva(hin, hout, puesto, listaReserva):
+# 	# no verifica precondicion, se supone que se hace buscar antes para ver si se puede agregar
+# 	if not isinstance(listaReserva, list):
+# 		return None
+# 	if len(listaReserva) == 0:
+# 		return listaReserva
+# 	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
+# 		return listaReserva
+# 	tupla = (hin, hout)
+# 	listaReserva.insert(puesto, tupla)
+# 	# estacionamiento[puesto].sort()
+# 	return listaReserva
+#===============================================================================
+
+#===============================================================================
+# def reservar(self,horaIni,horaFin , puesto):
+# 	
+# 	#No refactorizar aunque se vea que se puede xD , solo quitaria claridad.
+# 	if self.reserva_disponible(horaIni, horaFin):
+# 		self.listaReservas.append((horaIni , horaFin))
+# 		self.recrear_tabla = True
+# 		return True
+# 
+# 	return False
+#===============================================================================
 
