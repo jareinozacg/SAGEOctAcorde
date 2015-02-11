@@ -26,6 +26,9 @@ class Estacionamiento(models.Model):
 	Reservas_Inicio = models.TimeField(blank = True, null = True)
 	Reservas_Cierre = models.TimeField(blank = True, null = True)
 	NroPuesto = models.IntegerField(blank = True, null = True)
+	
+	#recrear_tabla = models.BooleanField()
+	
 
 
 # class ExtendedModel(models.Model):
@@ -46,6 +49,13 @@ class Estacionamiento(models.Model):
 # class PuestosModel(models.Model):
 # 	estacionamiento = models.ForeignKey(ExtendedModel)
 
+#===============================================================================
+# class TuplaMarzullo(models.Model):
+# 	Estacionamiento = models.ForeignKey(Estacionamiento)
+# 	offset = models.TimeField()
+# 	type   = models.IntegerField
+#===============================================================================
+	
 class ReservasModel(models.Model):
 	Estacionamiento = models.ForeignKey(Estacionamiento)
 	Puesto = models.IntegerField()

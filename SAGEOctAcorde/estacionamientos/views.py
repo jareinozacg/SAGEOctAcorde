@@ -7,15 +7,14 @@ from estacionamientos.controller import *
 from estacionamientos.forms import EstacionamientoExtendedForm
 from estacionamientos.forms import EstacionamientoForm
 from estacionamientos.forms import EstacionamientoReserva
-from estacionamientos.models import Estacionamiento, ReservasModel
+from estacionamientos.models import Estacionamiento, ReservasModel 
 
 
-listaReserva = []
+tablaMarzullo = []
+recrearTablaMarzullo = False
 
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
-    global listaReserva
-    listaReserva = []
     # Si se hace un POST a esta vista implica que se quiere agregar un nuevo
     # estacionamiento
     estacionamientos = Estacionamiento.objects.all()
@@ -60,9 +59,6 @@ def estacionamiento_detail(request, _id):
     except ObjectDoesNotExist:
         return render(request, '404.html')
 
-    global listaReserva
-    listaReserva = []
-
     if request.method == 'POST':
             # Leemos el formulario
             form = EstacionamientoExtendedForm(request.POST)
@@ -92,41 +88,28 @@ def estacionamiento_detail(request, _id):
 
 
 def estacionamiento_reserva(request, _id):
+    global tablaMarzullo , recrearTablaMarzullo
+    
     _id = int(_id)
     # Verificamos que el objeto exista antes de continuar
     try:
         estacion = Estacionamiento.objects.get(id = _id)
     except ObjectDoesNotExist:
-        return render(request, '404.html')
-
-    global listaReserva
-
-    # Antes de entrar en la reserva, si la lista esta vacia, agregamos los
-    # valores predefinidos
-    if len(listaReserva) < 1:
-
-        Puestos = ReservasModel.objects.filter(Estacionamiento = estacion).values_list('Puesto', 'InicioReserva', 'FinalReserva')
-        elem1 = (estacion.Apertura, estacion.Apertura)
-        elem2 = (estacion.Cierre, estacion.Cierre)
-        listaReserva = [[elem1, elem2] for _ in range(estacion.NroPuesto)]
-
-        for obj in Puestos:
-            puesto = busquedaBin(obj[1], obj[2], listaReserva[obj[0]])
-            listaReserva[obj[0]] = insertarReserva(obj[1], obj[2], puesto[0], listaReserva[obj[0]])
-
+        return render(request, '404.html')    
 
     # Si se hace un GET renderizamos los estacionamientos con su formulario
     if request.method == 'GET':
+        recrearTablaMarzullo = True
         form = EstacionamientoReserva()
         return render(request, 'estacionamientoReserva.html', {'form': form, 'estacionamiento': estacion})
 
     # Si es un POST estan mandando un request
-    elif request.method == 'POST':
+    if request.method == 'POST':
             form = EstacionamientoReserva(request.POST)
             # Verificamos si es valido con los validadores del formulario
             if form.is_valid():
                 inicio_reserva = form.cleaned_data['inicio']
-                final_reserva = form.cleaned_data['final']
+                final_reserva  = form.cleaned_data['final']
 
                 # Validamos los horarios con los horario de salida y entrada
                 m_validado = validarHorarioReserva(inicio_reserva, final_reserva, estacion.Reservas_Inicio, estacion.Reservas_Cierre)
@@ -135,18 +118,47 @@ def estacionamiento_reserva(request, _id):
                 if not m_validado[0]:
                     return render(request, 'templateMensaje.html', {'color':'red', 'mensaje': m_validado[1]})
 
+                if recrearTablaMarzullo:
+                    
+                    if len(tablaMarzullo) == 0:
+                        #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
+                        reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
+                        #Obtiene los valores que interesan de cada reserva en forma de una tupla de tres elementos
+                        reservas = reservas.values_list('Puesto', 'InicioReserva', 'FinalReserva')
+                        tablaMarzullo = crearTablaMarzullo(reservas)
+
+                    tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
+                    
                 # Si esta en un rango valido, procedemos a buscar en la lista
                 # el lugar a insertar
-                x = buscar(inicio_reserva, final_reserva, listaReserva)
-                if x[2] == True :
-                    reservar(inicio_reserva, final_reserva, listaReserva)
-                    reservaFinal = ReservasModel(
+                #tablaMarzullo = TuplaMarzullo.objects.filter(Estacionamiento = estacion)
+                puestosOcupados = puedeReservarALas(inicio_reserva, final_reserva,estacion.NroPuesto,tablaMarzullo)
+                
+                if puestosOcupados:
+                    
+                    #Buscamos un puesto libre
+                    for i in range(estacion.NroPuesto):
+                        if i not in puestosOcupados: #Si no 
+                            puesto = i + 1
+                            break
+                    
+                    #===========================================================
+                    # reservar(inicio_reserva, final_reserva,puesto)
+                    #===========================================================
+                    #tablaMarzullo.
+                    reservado = ReservasModel(
                                         Estacionamiento = estacion,
-                                        Puesto = x[0],
+                                        Puesto = puesto,
                                         InicioReserva = inicio_reserva,
                                         FinalReserva = final_reserva
                                     )
-                    reservaFinal.save()
+                    reservado.save()
+                    
+                    #Solo incorporamos la ultima reserva agregada
+                    tablaMarzullo.append((inicio_reserva, -1 , puesto))
+                    tablaMarzullo.append((final_reserva ,  1 , puesto))
+                    recrearTablaMarzullo = True
+                    
                     return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
                 else:
                     return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
