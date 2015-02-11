@@ -1,4 +1,6 @@
 # Archivo con funciones de control para SAGE
+import functools
+
 
 def HorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
 	'''
@@ -31,6 +33,7 @@ def validarHorarioReserva(inicioReserva, finalReserva, aperturaReservaEst, cierr
 		return (False, 'El horario de inicio de reserva debe estar en un horario válido')
 	if inicioReserva < aperturaReservaEst:
 		return (False, 'El horario de cierre de reserva debe estar en un horario válido')
+	
 	return (True, '')
 
 
@@ -43,13 +46,13 @@ def compararTuplasMarzullo(tupla1, tupla2):
 	if tupla1[0] < tupla2[0]: return -1
 
 	if tupla1[1] >= tupla2[1]: return -1
-	
+
 	return 1
 
 def interseccion(A_inicio,A_final,B_inicio,B_final):
 	''' 
-    Funcion que Dado dos intervalos (a1,b1),(a2,b2)
-    Indica si existe interseccion entre ellas
+	    Funcion que dado dos intervalos (a1,b1),(a2,b2).
+	    Indica si existe interseccion entre ellas.
     '''
 	inicioMasLargo = max(A_inicio, B_inicio)
 	finalMasCorto  = min(A_final, B_final)
