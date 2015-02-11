@@ -87,8 +87,9 @@ def estacionamiento_detail(request, _id):
                 estacion.save()
     else:
         form = EstacionamientoExtendedForm()
-
-    return render(request, 'estacionamiento.html', {'form': form, 'estacionamiento': estacion})
+        context = {'form': form, 
+                   'estacionamiento': estacion}
+    return render(request, 'estacionamiento.html', context )
 
 
 def estacionamiento_reserva(request, _id):
@@ -139,6 +140,8 @@ def estacionamiento_reserva(request, _id):
                 # el lugar a insertar
                 x = buscar(inicio_reserva, final_reserva, listaReserva)
                 if x[2] == True :
+                    
+                    """
                     reservar(inicio_reserva, final_reserva, listaReserva)
                     reservaFinal = ReservasModel(
                                         Estacionamiento = estacion,
@@ -146,8 +149,9 @@ def estacionamiento_reserva(request, _id):
                                         InicioReserva = inicio_reserva,
                                         FinalReserva = final_reserva
                                     )
-                    reservaFinal.save()
-                    return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
+                    reservaFinal.save()"""
+                    calculoPrecio(inicio_reserva, final_reserva)
+                    return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'La reserva es posible'},)
                 else:
                     return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
     else:

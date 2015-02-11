@@ -114,3 +114,9 @@ def validarHorarioReserva(ReservaInicio, ReservaFin, HorarioApertura, HorarioCie
 		return (False, 'El horario de cierre de reserva debe estar en un horario válido')
 	return (True, '')
 
+def calculoPrecio(hin, hout):
+	horaEntrada = hin.split(':')
+	horaSalida = hout.split(':')
+	hEntrada = datetime.time(horaEntrada[0], horaEntrada[1], 0)
+	hSalida = datetime.time(horaSalida[0], horaSalida[1], 0)
+
