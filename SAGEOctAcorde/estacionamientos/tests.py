@@ -8,6 +8,7 @@ import unittest
 from estacionamientos.controller import *
 from estacionamientos.forms import *
 from estacionamientos.forms import *
+from estacionamientos.views import tablaMarzullo
 
 
 ###################################################################
@@ -553,48 +554,85 @@ class SimpleFormTestCase(TestCase):
 		self.assertEqual(x, (False, 'El horario de cierre de reserva debe estar en un horario válido'))
 
 
-	def testEstacionamientoVacio(self): #Frontera
-		capacidad = 10
-		horaIni = datetime.time(6)
-		horaFin = datetime.time(18)
-		tablaMarzullo = []
-		
-		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
-
-	def testReservarUnaHoraEnHoraReservada(self): #Frontera
-		
-		capacidad = 10
-		horaIni = datetime.time(9)
-		horaFin = datetime.time(11)
-		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
-						 (datetime.time(11) , 1 , 1*capacidad)] * capacidad		
-		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
-
-		
-		assert len(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)) == 1
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	''  CASOS DE PRUEBA DESDE AQUI
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#===============================================================================
+# 	def testEstacionamientoVacio(self): #Frontera
+# 		capacidad = 10
+# 		horaIni = datetime.time(6)
+# 		horaFin = datetime.time(18)
+# 		tablaMarzullo = []
+# 		
+# 		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
+# 
+# 	def testReservarUnaHoraEnHoraReservada(self): #Frontera
+# 		
+# 		capacidad = 10
+# 		horaIni = datetime.time(9)
+# 		horaFin = datetime.time(11)
+# 		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
+# 						 (datetime.time(11) , 1 , 1*capacidad)] * capacidad		
+# 		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
+# 
+# 		
+# 		assert len(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)) == 1
+# 	
+# 	def testReservarUnaHoraEnHoraMayorALaReservada(self): #Frontera (Manuel) Linea 45
+# 		capacidad = 10
+# 		horaIni = datetime.time(15)
+# 		horaFin = datetime.time(16)
+# 		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
+# 						 (datetime.time(11) , 1 , 1)]*capacidad
+# 		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
+# 		
+# 		
+# 		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
+# 		
+# 	def testReservarUnaHoraEnHoraMenorALaReservada(self): #Frontera (Manuel) Linea 55
+# 		capacidad = 10
+# 		horaIni = datetime.time(7)
+# 		horaFin = datetime.time(8)
+# 		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
+# 						 (datetime.time(11) , 1 , 1)]*capacidad
+# 		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
+# 		
+# 		
+# 		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
+#===============================================================================
 	
-	def testReservarUnaHoraEnHoraMayorALaReservada(self): #Frontera (Manuel) Linea 45
-		capacidad = 10
-		horaIni = datetime.time(15)
-		horaFin = datetime.time(16)
-		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
-						 (datetime.time(11) , 1 , 1)]*capacidad
-		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
-		
-		
-		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
-		
-	def testReservarUnaHoraEnHoraMenorALaReservada(self): #Frontera (Manuel) Linea 55
-		capacidad = 10
-		horaIni = datetime.time(7)
-		horaFin = datetime.time(8)
-		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
-						 (datetime.time(11) , 1 , 1)]*capacidad
-		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
-		
-		
-		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
+	def formatHora(self,hora):
+		'''
+		Funcion que dado una fecha en formato string, devuelve el datetime
+		'''
+		return datetime.strptime(hora, "%H:%M") # "%Y-%m-%d %H:%M" formato para fechas
 	
+	def crearTuplasHoras(self,listaTuplas):
+		'''
+		Convierte tuplas de string a datetime
+		'''
+		listaHora = []
+		
+		for tupla in listaTuplas:
+			listaHora.append( (self.formatHora(tupla[0]),self.formatHora(tupla[1])) )
+		
+		return listaHora
+				
+		
+	def testReservarEjemplo(self):
+		'''
+		Ejemplo Formato
+		'''
+		capacidad = 10
+		horaIni = self.formatHora("16:00")
+		horaFin = self.formatHora("17:00")
+		puestosOcupados = self.crearTuplasHoras([("16:00", "18:00"), ("3:00", "9:00")])
+		
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		# Opcion 1
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		# Opcion 2
+		self.assertRaises(AssertionError, puedeReservarALas, horaIni,horaFin,capacidad,tablaMarzullo)
 #===============================================================================
 # 	
 # 	def testReservaDosHorasEnReservaMaxima(self): # Esquina (Manuel) Linea 65
