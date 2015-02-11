@@ -132,7 +132,6 @@ def estacionamiento_reserva(request, _id):
                         reservas = reservas.values_list('InicioReserva', 'FinalReserva')
                         tablaMarzullo = crearTablaMarzullo(reservas)
 
-                    tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
                            
                 if puedeReservarALas(inicio_reserva, final_reserva,estacion.NroPuesto,tablaMarzullo):
                     

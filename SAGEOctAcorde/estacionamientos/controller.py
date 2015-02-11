@@ -1,35 +1,35 @@
 # Archivo con funciones de control para SAGE
-import datetime
-#! @ file controller.py
-# @brief Archivo
 
-
-# chequeo de horarios de extended
-def HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin):
-
-	if HoraInicio >= HoraFin:
+def HorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
+	'''
+		Chequea que el horario de estacionamiento de apertura y el horario de apertura 
+		de las reservas estan correctos.
+	'''
+	if aperturaEst >= finalEst:
 		return (False, 'El horario de apertura debe ser menor al horario de cierre')
-	if ReservaInicio >= ReservaFin:
+	if inicioReservaEst >= finalReservaEst:
 		return (False, 'El horario de inicio de reserva debe ser menor al horario de cierre')
-	if ReservaInicio < HoraInicio:
+	if inicioReservaEst < aperturaEst:
 		return (False, 'El horario de inicio de reserva debe mayor o igual al horario de apertura del estacionamiento')
-	if ReservaInicio > HoraFin:
+	if inicioReservaEst > finalEst:
 		return (False, 'El horario de comienzo de reserva debe ser menor al horario de cierre del estacionamiento')
-	if ReservaFin < HoraInicio:
+	if finalReservaEst < aperturaEst:
 		return (False, 'El horario de apertura de estacionamiento debe ser menor al horario de finalización de reservas')
-	if ReservaFin > HoraFin:
+	if finalReservaEst > finalEst:
 		return (False, 'El horario de cierre de estacionamiento debe ser mayor o igual al horario de finalización de reservas')
 	return (True, '')
 
-def validarHorarioReserva(ReservaInicio, ReservaFin, HorarioApertura, HorarioCierre):
-
-	if ReservaInicio >= ReservaFin:
+def validarHorarioReserva(inicioReserva, finalReserva, aperturaReservaEst, cierreReservaEst):
+	'''
+		Chequea que el horario de la reserva y el horario de apetu.
+	'''
+	if inicioReserva >= finalReserva:
 		return (False, 'El horario de apertura debe ser menor al horario de cierre')
-	if ReservaFin.hour - ReservaInicio.hour < 1:
+	if finalReserva.hour - inicioReserva.hour < 1:
 		return (False, 'El tiempo de reserva debe ser al menos de 1 hora')
-	if ReservaFin > HorarioCierre:
+	if finalReserva > cierreReservaEst:
 		return (False, 'El horario de inicio de reserva debe estar en un horario válido')
-	if ReservaInicio < HorarioApertura:
+	if inicioReserva < aperturaReservaEst:
 		return (False, 'El horario de cierre de reserva debe estar en un horario válido')
 	return (True, '')
 
@@ -59,6 +59,7 @@ def interseccion(A_inicio,A_final,B_inicio,B_final):
 def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
 	'Verifica usando Marzullo si una reserva esta disponible'
 	
+	tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
 	
 	best, beststart, bestend, cnt = 0,0,0,0
 	for i in range(0, len(tablaMarzullo)-1):
