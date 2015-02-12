@@ -62,6 +62,16 @@ def interseccion(A_inicio,A_final,B_inicio,B_final):
 	finalMasCorto  = min(A_final, B_final)
 	return inicioMasLargo < finalMasCorto
 
+def calculoPrecio(hin, hout, tarifa):
+ 	d = datetime.date(1111, 1, 11)
+ 	fchcomienzo = datetime.datetime.combine(d, hin)
+ 	fchfinal = datetime.datetime.combine(d, hout)
+ 	tiempoTotal = fchfinal - fchcomienzo
+	if(tarifa.granularidad == "hrs"):
+		return tiempoTotal.seconds // 3600 * tarifa.tarifa
+	else:
+		return tiempoTotal.seconds // 60 * tarifa.tarifa
+
 
 def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
 	'Verifica usando Marzullo si una reserva esta disponible'
