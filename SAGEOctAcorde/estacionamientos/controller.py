@@ -1,6 +1,7 @@
 # Archivo con funciones de control para SAGE
 import datetime
 from datetime import timedelta, date
+from estacionamientos.models import Tarifa, Estacionamiento
 
 # Las Tuplas de cada puesto deben tener los horarios de inicio y de cierre para que
 # pueda funcionar [(7:00,7:00), (19:00,19:00)]
@@ -115,10 +116,11 @@ def validarHorarioReserva(ReservaInicio, ReservaFin, HorarioApertura, HorarioCie
 		return (False, 'El horario de cierre de reserva debe estar en un horario válido')
 	return (True, '')
 
-def calculoPrecio(hin, hout):
+def calculoPrecio(hin, hout, granularidad):
 	d = datetime.date(1111, 1, 11)
 	fchcomienzo = datetime.datetime.combine(d, hin)
 	fchfinal = datetime.datetime.combine(d, hout)
+	tarifa = Tarifa.objects.get()
 	tiempoTotal = fchfinal - fchcomienzo
-	return tiempoTotal
+	return granularidad
 
