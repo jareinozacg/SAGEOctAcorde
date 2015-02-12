@@ -11,7 +11,6 @@ from estacionamientos.models import Estacionamiento, ReservasModel
 
 
 tablaMarzullo = []
-recrearTablaMarzullo = False
 
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
@@ -52,9 +51,7 @@ def estacionamientos_all(request):
     return render(request, 'base.html', {'form': form, 'estacionamientos': estacionamientos})
 
 def estacionamiento_detail(request, _id):
-    global tablaMarzullo, recrearTablaMarzullo
-    tablaMarzullo = []
-    recrearTablaMarzullo = True
+
     _id = int(_id)
     # Verificamos que el objeto exista antes de continuar
     try:
@@ -91,7 +88,8 @@ def estacionamiento_detail(request, _id):
 
 
 def estacionamiento_reserva(request, _id):
-    global tablaMarzullo , recrearTablaMarzullo
+    
+    global tablaMarzullo
     
     _id = int(_id)
     # Verificamos que el objeto exista antes de continuar
@@ -102,14 +100,15 @@ def estacionamiento_reserva(request, _id):
 
     # Si se hace un GET renderizamos los estacionamientos con su formulario
     if request.method == 'GET':
-        recrearTablaMarzullo = True
+        tablaMarzullo = []
         form = EstacionamientoReserva()
         return render(request, 'estacionamientoReserva.html', {'form': form, 'estacionamiento': estacion})
 
     # Si es un POST estan mandando un request
     if request.method == 'POST':
+        
             form = EstacionamientoReserva(request.POST)
-            # Verificamos si es valido con los validadores del formulario
+            
             if form.is_valid():
                 inicio_reserva = form.cleaned_data['inicio']
                 final_reserva  = form.cleaned_data['final']
@@ -122,17 +121,16 @@ def estacionamiento_reserva(request, _id):
                 if not horario_aceptado:
                     return render(request, 'templateMensaje.html', {'color':'red', 'mensaje': m_validado[1]})
 
-                if recrearTablaMarzullo:
-                    
-                    if len(tablaMarzullo) == 0:
-                        #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
-                        reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
-                        #Obtiene los valores que interesan de cada reserva en forma de una tupla de tres elementos
-                        reservas = reservas.values_list('InicioReserva', 'FinalReserva')
-                        tablaMarzullo = crearTablaMarzullo(reservas)
+                if len(tablaMarzullo) == 0:
+                    #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
+                    reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
+                    #Obtiene los valores que interesan de cada reserva en forma de una tupla
+                    reservas = reservas.values_list('InicioReserva', 'FinalReserva')
+                    tablaMarzullo = crearTablaMarzullo(reservas)
 
                            
-                if puedeReservarALas(inicio_reserva, final_reserva,estacion.NroPuesto,tablaMarzullo):
+                if puedeReservarALas(inicio_reserva, final_reserva,\
+                                estacion.NroPuesto,tablaMarzullo):
                     
                     reservado = ReservasModel(
                         Estacionamiento = estacion,
@@ -140,12 +138,11 @@ def estacionamiento_reserva(request, _id):
                         FinalReserva = final_reserva
                     )
                     
-                    reservado.save() # Agregar la nueva reserva a la base de datos
+                    reservado.save() # Agrega la nueva reserva a la base de datos
                     
-                    #Solo incorporamos la reserva aceptada en formato de Marzullo
+                    #Incorporamos la reserva aceptada
                     tablaMarzullo.append((inicio_reserva, -1))
                     tablaMarzullo.append((final_reserva ,  1))
-                    recrearTablaMarzullo = True
                     
                     return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
                 
