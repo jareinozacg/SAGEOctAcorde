@@ -50,7 +50,7 @@ class EstacionamientoForm(forms.Form):
 
 class EstacionamientoExtendedForm(ModelForm):
     Tarifa = forms.ModelChoiceField(
-        queryset=Tarifa.tipo_granularidad, 
+        queryset=Tarifa.objects.all(), 
         empty_label="Seleccione tipo de Tarifa",
         required = True
         )
@@ -60,7 +60,8 @@ class EstacionamientoExtendedForm(ModelForm):
     
     class Meta:
         model = Estacionamiento
-        exclude = ['Propietario','Nombre','Direccion', 'Telefono_1', 'Telefono_2','Telefono_3', 'Email_1','Email_2','Rif', 'Tarifa']
+        exclude = ['Propietario','Nombre','Direccion', 'Telefono_1', 'Telefono_2','Telefono_3',
+                    'Email_1','Email_2','Rif', 'Tarifa']
 
 
 class EstacionamientoReserva(forms.Form):
