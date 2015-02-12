@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
+from django.forms import ModelForm
+from estacionamientos.models import *
 from django.core.validators import RegexValidator
+from django.template.defaultfilters import default
 
 
 class EstacionamientoForm(forms.Form):
@@ -45,24 +48,26 @@ class EstacionamientoForm(forms.Form):
                     ]
                 )
 
-class EstacionamientoExtendedForm(forms.Form):
+class EstacionamientoExtendedForm(ModelForm):
+    Tarifa = forms.ModelChoiceField(
+        queryset=Tarifa.tipo_granularidad, 
+        empty_label="Seleccione tipo de Tarifa",
+        required = True
+        )
 
+    monto = forms.DecimalField( max_digits = 10, decimal_places=2,
+                                 label = 'Monto', required = False)
+    
+    class Meta:
+        model = Estacionamiento
+        exclude = ['Propietario','Nombre','Direccion', 'Telefono_1', 'Telefono_2','Telefono_3', 'Email_1','Email_2','Rif', 'Tarifa']
 
-    puestos = forms.IntegerField(min_value = 0, label = 'Número de Puestos')
-
-    tarifa_validator = RegexValidator(
-                            regex = '^([0-9]+(\.[0-9]+)?)$',
-                            message = 'Sólo debe contener dígitos.'
-                        )
-
-    horarioin = forms.TimeField(required = True, label = 'Horario Apertura')
-    horarioout = forms.TimeField(required = True, label = 'Horario Cierre')
-
-    horario_reserin = forms.TimeField(required = True, label = 'Horario Inicio Reserva')
-    horario_reserout = forms.TimeField(required = True, label = 'Horario Fin Reserva')
-
-    tarifa = forms.CharField(required = True, validators = [tarifa_validator])
 
 class EstacionamientoReserva(forms.Form):
-    inicio = forms.TimeField(label = 'Horario Inicio Reserva')
-    final = forms.TimeField(label = 'Horario Final Reserva')
+    inicio = forms.TimeField(label = 'Horario de inicio')
+    final = forms.TimeField(label = 'Horario final')
+
+class DefinirTarifa(ModelForm):
+    class Meta:
+        model = Tarifa
+        exclude = ['nombre']

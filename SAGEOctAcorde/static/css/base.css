@@ -199,14 +199,22 @@ body {
 
 
 .errorlist {
-border: 1px solid;
-margin: 10px 0px;
-padding:15px 10px 15px 50px;
-background-repeat: no-repeat;
-background-position: 10px center;
-
+	border: 1px solid;
+	margin: 10px 0px;
+	padding:15px 10px 15px 50px;
+	background-repeat: no-repeat;
+	background-position: 10px center;
   }
+  
 .errorlist {
 color: #D8000C;
 background-color: #FFBABA;
+}
+
+select {
+	width: 100%;
+	margin-bottom: 4%;
+	color: rgb(171, 164, 164);
+	height: 30px;
+	border-radius: 2px;
 }
