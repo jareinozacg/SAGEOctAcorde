@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 from django.test import Client
 from django.test import TestCase
 import unittest
-
+import datetime
 from estacionamientos.controller import *
 from estacionamientos.forms import *
 from estacionamientos.forms import *
+from estacionamientos.views import tablaMarzullo
+from estacionamientos.models import Estacionamiento
 
 
 ###################################################################
@@ -352,7 +353,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 18, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (True, ''))
 
 	# malicia
@@ -361,7 +362,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 11, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 18, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de apertura debe ser menor al horario de cierre'))
 
 	# caso borde
@@ -370,7 +371,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 18, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de apertura debe ser menor al horario de cierre'))
 
 	# caso borde
@@ -379,7 +380,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 11, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de inicio de reserva debe ser menor al horario de cierre'))
 
 	# caso borde
@@ -388,7 +389,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 12, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de inicio de reserva debe ser menor al horario de cierre'))
 
 	# caso borde
@@ -397,7 +398,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 12, minute = 0, second = 1)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 12, minute = 0, second = 1)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (True, ''))
 
 	# caso borde
@@ -406,7 +407,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 23, minute = 59, second = 59)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 23, minute = 59, second = 59)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (True, ''))
 
 	# caso borde
@@ -415,7 +416,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 19, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 20, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de comienzo de reserva debe ser menor al horario de cierre del estacionamiento'))
 
 	# caso borde
@@ -424,17 +425,17 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 19, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 20, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de comienzo de reserva debe ser menor al horario de cierre del estacionamiento'))
 
 	# malicia
 	def test_CierreReserva_Mayor_HoraCierreEstacionamiento(self):
-		HoraInicio = datetime.time(hour = 12, minute = 0, second = 0)
-		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
-		ReservaInicio = datetime.time(hour = 17, minute = 0, second = 0)
-		ReservaFin = datetime.time(hour = 20, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
-		self.assertEqual(x, (False, 'El horario de cierre de estacionamiento debe ser mayor o igual al horario de finalización de reservas'))
+		horaInicio = datetime.time(hour = 12, minute = 0, second = 0)
+		horaFin = datetime.time(hour = 18, minute = 0, second = 0)
+		reservaInicio = datetime.time(hour = 17, minute = 0, second = 0)
+		reservaFin = datetime.time(hour = 20, minute = 0, second = 0)
+		x = validarHorarioEstacionamiento(horaInicio, horaFin, reservaInicio, reservaFin)
+		self.assertEqual(x, (False, 'El horario de cierre del estacionamiento debe ser mayor o igual al horario de finalización de las reservas'))
 
 	# malicia
 	def test_CierreReserva_Menos_HoraInicioEstacionamiento(self):
@@ -442,8 +443,8 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 10, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 11, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
-		self.assertEqual(x, (False, 'El horario de inicio de reserva debe mayor o igual al horario de apertura del estacionamiento'))
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		self.assertEqual(x, (False, 'El horario de inicio de reserva debe ser mayor o igual al horario de apertura del estacionamiento'))
 
 
 
@@ -541,7 +542,7 @@ class SimpleFormTestCase(TestCase):
 		HoraApertura = datetime.time(hour = 12, minute = 0, second = 0)
 		HoraCierre = datetime.time(hour = 18, minute = 0, second = 0)
 		x = validarHorarioReserva(ReservaInicio, ReservaFin, HoraApertura, HoraCierre)
-		self.assertEqual(x, (False, 'El horario de inicio de reserva debe estar en un horario válido'))
+		self.assertEqual(x, (False, 'El horario de cierre de reserva debe estar en un horario válido'))
 
 	# caso borde
 	def test_HorarioReservaInvalido_ReservaInicial_Menor_HorarioApertura(self):
@@ -550,706 +551,429 @@ class SimpleFormTestCase(TestCase):
 		HoraApertura = datetime.time(hour = 12, minute = 0, second = 0)
 		HoraCierre = datetime.time(hour = 18, minute = 0, second = 0)
 		x = validarHorarioReserva(ReservaInicio, ReservaFin, HoraApertura, HoraCierre)
-		self.assertEqual(x, (False, 'El horario de cierre de reserva debe estar en un horario válido'))
-
-	# malicia
-	def test_Reservacion_CamposVacios(self):
-		form_data = {'inicio':datetime.time(6, 0), 'final':datetime.time(12, 0)}
-		form = EstacionamientoReserva(data = form_data)
-		self.assertEqual(form.is_valid(), True)
-
-# Binaria, Pruebas Unitarias
-
-	# caso borde
-	def test_Binaria_lista_vacia(self):
-		valor = datetime.time(hour = 10, minute = 0, second = 0)
-		lista = []
-		x = binaria(valor, 0, len(lista), lista)
-		self.assertEqual(x, 0)
-
-	# caso borde
-	def test_Binaria_lista_un_elem(self):
-		valor = datetime.time(hour = 10, minute = 0, second = 0)
-		Hora1In = datetime.time(hour = 8, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 9, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		x = binaria(valor, 0, len(lista), lista)
-		self.assertEqual(x, 1)
-
-	# caso borde
-	def test_Binaria_horas_borde(self):
-		valor = datetime.time(hour = 10, minute = 0, second = 0)
-		Hora1In = datetime.time(hour = 0, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 0, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 23, minute = 59, second = 59)
-		Hora2Out = datetime.time(hour = 23, minute = 59, second = 59)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		x = binaria(valor, 0, len(lista), lista)
-		self.assertEqual(x, 1)
-
-	# caso borde
-	def test_Binaria_horas_borde2(self):
-		valor = datetime.time(hour = 0, minute = 0, second = 0)
-		Hora1In = datetime.time(hour = 0, minute = 0, second = 1)
-		Hora1Out = datetime.time(hour = 0, minute = 0, second = 1)
-		Hora2In = datetime.time(hour = 23, minute = 59, second = 59)
-		Hora2Out = datetime.time(hour = 23, minute = 59, second = 59)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		x = binaria(valor, 0, len(lista), lista)
-		self.assertEqual(x, 0)
-
-	# caso borde
-	def test_Binaria_horas_borde3(self):
-		valor = datetime.time(hour = 23, minute = 59, second = 59)
-		Hora1In = datetime.time(hour = 0, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 0, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 23, minute = 59, second = 58)
-		Hora2Out = datetime.time(hour = 23, minute = 59, second = 58)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		x = binaria(valor, 0, len(lista), lista)
-		self.assertEqual(x, 2)
-
-	# malicia
-	def test_Binaria_horas_mal_orden(self):
-		valor = datetime.time(hour = 20, minute = 10, second = 13)
-		Hora1In = datetime.time(hour = 0, minute = 1, second = 0)
-		Hora1Out = datetime.time(hour = 0, minute = 0, second = 30)
-		Hora2In = datetime.time(hour = 23, minute = 59, second = 59)
-		Hora2Out = datetime.time(hour = 23, minute = 59, second = 58)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		x = binaria(valor, 0, len(lista), lista)
-		self.assertEqual(x, 1)
-
-	# malicia
-	def test_Binaria_horas_mal_orden2(self):
-		valor = datetime.time(hour = 20, minute = 10, second = 13)
-		Hora1In = datetime.time(hour = 0, minute = 1, second = 0)
-		Hora1Out = datetime.time(hour = 0, minute = 0, second = 30)
-		Hora2In = datetime.time(hour = 23, minute = 59, second = 59)
-		Hora2Out = datetime.time(hour = 19, minute = 59, second = 58)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		x = binaria(valor, 0, len(lista), lista)
-		self.assertEqual(x, 1)
-
-	# malicia
-	def test_Binaria_horas_mal_orden3(self):
-		valor = datetime.time(hour = 20, minute = 10, second = 13)
-		Hora1In = datetime.time(hour = 0, minute = 1, second = 0)
-		Hora1Out = datetime.time(hour = 0, minute = 0, second = 30)
-		Hora2In = datetime.time(hour = 23, minute = 59, second = 59)
-		Hora2Out = datetime.time(hour = 19, minute = 59, second = 58)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		x = binaria(valor, 0, len(lista), lista)
-		self.assertEqual(x, 1)
-
-# busquedaBin, Pruebas Integracion, funcion 'binaria' con 'busquedaBin'
-
-	# caso borde
-	def test_BusquedaBin_horarios_todoeldia(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 22, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (1, True))
-
-	# caso borde
-	def test_BusquedaBin_noDisponible(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora3In, Hora3Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = datetime.time(hour = 7, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 9, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (2, False))
-
-	# normal
-	def test_BusquedaBin_noDisponible_reservarTodoElDia(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora3In, Hora3Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 22, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (1, False))
-
-	# caso borde
-	def test_BusquedaBin_lista_solo_maxmin(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = datetime.time(hour = 12, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 18, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (1, True))
-
-	# caso borde
-	def test_BusquedaBin_horasIguales_Inicio(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 6, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (1, True))
-
-	# caso borde
-	def test_BusquedaBin_horasIguales_Fin(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = datetime.time(hour = 22, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 22, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (1, True))
-
-	# malicia
-	def test_BusquedaBin_lista_no_inicializada(self):
-		lista = []
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (0, True))
-
-	# malicia
-	def test_BusquedaBin_lista_None(self):
-		lista = None
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (0, False))
-
-	# malicia
-	def test_BusquedaBin_lista_noLista(self):
-		lista = 'String'
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (0, False))
-
-	# malicia
-	def test_BusquedaBin_horaIngreso_None(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = None
-		HoraOut = datetime.time(hour = 22, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (0, False))
-
-	# malicia
-	def test_BusquedaBin_horaSalida_None(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = None
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (0, False))
-
-	# malicia
-	def test_BusquedaBin_horaIngreso_no_datetime(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = 'String'
-		HoraOut = datetime.time(hour = 22, minute = 0, second = 0)
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (0, False))
-
-	# malicia
-	def test_BusquedaBin_horaSalida_no_datetime(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = 'String'
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (0, False))
-
-	# normal
-	def test_BusquedaBin_todoEn_None(self):
-		lista = None
-		HoraIn = None
-		HoraOut = None
-		x = busquedaBin(HoraIn, HoraOut, lista)
-		self.assertEqual(x, (0, False))
-
-# buscar, Pruebas Integracion, funcion 'busquedaBin' con 'buscar'
-
-	# normal
-	def test_buscar_funcionalidadOK(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		estacionamiento = [lista for x in range(2)]
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (0, 1, True))
-
-	# caso borde
-	def test_buscar_horas_Iguales(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora2In, Hora2Out])
-		estacionamiento = [lista for x in range(2)]
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 6, minute = 0, second = 0)
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (0, 1, True))
-
-	# caso borde
-	def test_buscar_estacionamientoLleno(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora3In, Hora3Out])
-		lista.append([Hora2In, Hora2Out])
-		estacionamiento = [lista for x in range(2)]
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
-
-	# malicia
-	def test_buscar_estacionamiento_None(self):
-		estacionamiento = None
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
-
-	# malicia
-	def test_buscar_estacionamiento_noLista(self):
-		estacionamiento = 'String'
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
-
-	# malicia
-	def test_buscar_estacionamiento_noInicializado(self):
-		estacionamiento = []
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
-
-	# malicia
-	def test_buscar_horaIngreso_None(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora3In, Hora3Out])
-		lista.append([Hora2In, Hora2Out])
-		estacionamiento = [lista for x in range(2)]
-		HoraIn = None
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
-
-	# malicia
-	def test_buscar_horaFin_None(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora3In, Hora3Out])
-		lista.append([Hora2In, Hora2Out])
-		estacionamiento = [lista for x in range(2)]
-		HoraIn = datetime.time(hour = 6, minute = 0, second = 0)
-		HoraOut = None
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
-
-	# malicia
-	def test_buscar_horaIngreso_noDatetime(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append([Hora1In, Hora1Out])
-		lista.append([Hora3In, Hora3Out])
-		lista.append([Hora2In, Hora2Out])
-		estacionamiento = [lista for x in range(2)]
-		HoraIn = 'String'
-		HoraOut = datetime.time(hour = 12, minute = 0, second = 0)
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
-
-	# normal
-	def test_buscar_todo_None(self):
-		estacionamiento = None
-		HoraIn = None
-		HoraOut = None
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
-
-	# normal
-	def test_buscar_todo_invalido(self):
-		estacionamiento = 'String'
-		HoraIn = 42
-		HoraOut = 42
-		x = buscar(HoraIn, HoraOut, estacionamiento)
-		self.assertEqual(x, (-1, -1, False))
+		self.assertEqual(x, (False, 'El horario de inicio de reserva debe estar en un horario válido'))
 
 
-# insertarReserva, Pruebas Unitarias
-# no se requiere unas pruebas exaustivas de esta funcion, ya que esta funcion
-# solo agrega una tupla a la lista otorgada utilizando la funcion 'insert' de las listas
-# de python, la cual presumo que ha sido probada en gran cantidad de oportunidades
+#===============================================================================
+# PRUEBAS UNITARIAS DE FUNCION puedeReservarALas
+#===============================================================================
 
-	# normal
-	def test_insertarReserva_funcionalidadOk(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		lista2 = []
-		lista2.append((Hora1In, Hora1Out))
-		lista2.append((Hora3In, Hora3Out))
-		lista2.append((Hora2In, Hora2Out))
-		x = insertarReserva(Hora3In, Hora3Out, 1, lista)
-		self.assertEqual(x, lista2)
+#===============================================================================
+# ESTACIONAMIENTO CON 1 PUESTO
+#===============================================================================
+	def testEstacionamientoVacio(self):
+		'Esquina: Reserva de 30 min en estacionamiento vacio'
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:30")
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, []))
 
-	# malicia
-	def test_insertarReserva_lista_None(self):
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = None
-		x = insertarReserva(Hora3In, Hora3Out, 1, lista)
-		self.assertEqual(x, None)
+	def testReservar30MinEn30MinReservados(self): 
+		'Esquina: Reserva en una hora previamente ocupada'
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+	
+	def testReservar30MinEnHoraMayorALaReservada(self): 
+		'Frontera: Reserva media hora en otra previamente ocupada'
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:30")
+		horaFin = timeDesdeCadena("16:00")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+	
+	def testReservar30MinEnHoraColisionaConReservada1MinIzqui(self):
+		'''Frontera: Reserva media hora que colisiona por la izquierda en \
+		1 min con una reserva previamente realizada'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:29")
+		horaFin = timeDesdeCadena("15:59")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		
+	def testReservar30MinEnHoraMenorALaReservada(self): 
+		'Esquina: Reserva 30 min en otra previamente ocupada'
+		capacidad = 1
+		horaIni = timeDesdeCadena("14:30")
+		horaFin = timeDesdeCadena("15:00")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+	
+	def testReservar30MinEnHoraColisionaConReservada1MinDere(self):
+		'''Frontera: Reserva media hora que colisiona por la derecha en \
+		1 min con una reserva previamente realizada'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("14:31")
+		horaFin = timeDesdeCadena("15:01")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		
+		
+	def testReserva28MinEntreDosReservasDe30NoBorde(self): 
+		'''Normal: Reserva 28 min entre dos reservas de 30 min , sin tocar sus bordes por 1 min'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:31")
+		horaFin = timeDesdeCadena("15:59")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		
+		
+	def testReserva29MinEntreDosReservasDe30BordeIzqui(self): 
+		'''Frontera: Reserva 29 min entre dos reservas de 30 min , toca borde izquierdo'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:30")
+		horaFin = timeDesdeCadena("15:59")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# malicia
-	def test_insertarReserva_lista_noLista(self):
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = 'String'
-		x = insertarReserva(Hora3In, Hora3Out, 1, lista)
-		self.assertEqual(x, None)
+	def testReserva29MinEntreDosReservasDe30BordeDere(self): 
+		'''Frontera: Reserva 29 min entre dos reservas de 30 min , toca borde derecho'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:31")
+		horaFin = timeDesdeCadena("16:00")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# malicia
-	def test_insertarReserva_horaIngreso_None(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = None
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		x = insertarReserva(Hora3In, Hora3Out, 1, lista)
-		self.assertEqual(x, lista)
+	def testReserva30MinEntreDosReservasDe30Bordes(self): 
+		'''Frontera: Reserva 30 min entre dos reservas de 30 min , toca ambos bordes'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:30")
+		horaFin = timeDesdeCadena("16:00")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# malicia
-	def test_insertarReserva_horaSalida_None(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = None
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		x = insertarReserva(Hora3In, Hora3Out, 1, lista)
-		self.assertEqual(x, lista)
+	def testReserva30MinEntreDosReservasDe30InterIzqui(self): 
+		'''Frontera: Reserva 30 min entre dos reservas de 30 min , 
+		   intersecta por 1 min a la reserva del lado izquierdo
+		'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:29")
+		horaFin = timeDesdeCadena("15:59")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# malicia
-	def test_insertarReserva_horaIngreso_noDatetime(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = 42
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		x = insertarReserva(Hora3In, Hora3Out, 1, lista)
-		self.assertEqual(x, lista)
+	def testReserva30MinEntreDosReservasDe30InterDere(self): 
+		'''Frontera: Reserva 30 min entre dos reservas de 30 min , 
+		   intersecta por 1 min a la reserva del lado derecho
+		'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:31")
+		horaFin = timeDesdeCadena("16:01")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# malicia
-	def test_insertarReserva_horaSalida_noDatetime(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = 42
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		x = insertarReserva(Hora3In, Hora3Out, 1, lista)
-		self.assertEqual(x, lista)
+	def testReserva30MinEntreDosReservasDe30SuperponeIzquie(self): 
+		'''Frontera: Reserva 30 min superponiendo la reserva del lado izquierdo
+		'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# malicia
-	def test_insertarReserva_todo_None(self):
-		lista = None
-		x = insertarReserva(None, None, 1, lista)
-		self.assertEqual(x, None)
+	def testReserva30MinEntreDosReservasDe30SuperponeDere(self): 
+		'''Frontera: Reserva 30 min superponiendo la reserva del lado derecho
+		'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("16:00")
+		horaFin = timeDesdeCadena("16:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-# reservar, Pruebas Integracion, funciones 'reservar', 'buscar' e 'insertarReserva'
+	def testReserva1HoraEntreDosReservasDe30SolapaIzqui(self): 
+		'''Frontera: Reserva 1 hora superponiendo la reserva del lado izquierdo'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("16:00")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# normal
-	def test_reservar_funcionalidadOk(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 8, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 12, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		estacionamiento = [lista for x in range(2)]
-		lista2 = []
-		lista2.append((Hora1In, Hora1Out))
-		lista2.append((Hora3In, Hora3Out))
-		lista2.append((Hora2In, Hora2Out))
-		estacionamiento2 = []
-		estacionamiento2.append(lista2)
-		estacionamiento2.append(lista)
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, estacionamiento2)
+	def testReserva1HoraEntreDosReservasDe30SolapaDere(self): 
+		'''Frontera: Reserva 1 hora superponiendo la reserva del lado derecho'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:30")
+		horaFin = timeDesdeCadena("16:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# caso frontera
-	def test_reservar_estacionamiento_full(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora3In, Hora3Out))
-		lista.append((Hora2In, Hora2Out))
-		estacionamiento = [lista for x in range(2)]
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, 1)
+	def testReserva1Hora30MinEntreDosReservasDe30SolapaAmbos(self): 
+		'''Frontera: Reserva 1 y media hora superponiendo ambas reservas'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("16:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# caso frontera
-	def test_reservar_ultimoPuestoAReservar(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 8, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 12, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		lista2 = []
-		lista2.append((Hora1In, Hora1Out))
-		lista2.append((Hora3In, Hora3Out))
-		lista2.append((Hora2In, Hora2Out))
-		estacionamiento = []
-		estacionamiento.append(lista2)
-		estacionamiento.append(lista)
-		estacionamiento2 = []
-		estacionamiento2.append(lista2)
-		estacionamiento2.append(lista2)
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, estacionamiento2)
+	def testReserva32MinEntreDosReservasDe30SolapaAmbosPor1Min(self): 
+		'''Frontera: Reserva 32 min solapando por 1 min ambas reservaciones'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:29")
+		horaFin = timeDesdeCadena("16:01")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
-	# malicia
-	def test_reservar_estacionamiento_None(self):
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		estacionamiento = None
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, 1)
-
-	# malicia
-	def test_reservar_estacionamiento_noLista(self):
-		Hora3In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3Out = datetime.time(hour = 22, minute = 0, second = 0)
-		estacionamiento = 'String'
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, 1)
-
-	# malicia
-	def test_reservar_horaIngreso_None(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = None
-		Hora3Out = datetime.time(hour = 12, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		estacionamiento = [lista for x in range(2)]
-		lista2 = []
-		lista2.append((Hora1In, Hora1Out))
-		lista2.append((Hora3In, Hora3Out))
-		lista2.append((Hora2In, Hora2Out))
-		estacionamiento2 = []
-		estacionamiento2.append(lista2)
-		estacionamiento2.append(lista)
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, 1)
-
-	# malicia
-	def test_reservar_horaSalida_None(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 8, minute = 0, second = 0)
-		Hora3Out = None
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		estacionamiento = [lista for x in range(2)]
-		lista2 = []
-		lista2.append((Hora1In, Hora1Out))
-		lista2.append((Hora3In, Hora3Out))
-		lista2.append((Hora2In, Hora2Out))
-		estacionamiento2 = []
-		estacionamiento2.append(lista2)
-		estacionamiento2.append(lista)
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, 1)
-
-	# malicia
-	def test_reservar_horaIngreso_noLista(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = 'String'
-		Hora3Out = datetime.time(hour = 12, minute = 0, second = 0)
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		estacionamiento = [lista for x in range(2)]
-		lista2 = []
-		lista2.append((Hora1In, Hora1Out))
-		lista2.append((Hora3In, Hora3Out))
-		lista2.append((Hora2In, Hora2Out))
-		estacionamiento2 = []
-		estacionamiento2.append(lista2)
-		estacionamiento2.append(lista)
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, 1)
-
-	# malicia
-	def test_reservar_horaSalida_noLista(self):
-		Hora1In = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora1Out = datetime.time(hour = 6, minute = 0, second = 0)
-		Hora3In = datetime.time(hour = 8, minute = 0, second = 0)
-		Hora3Out = 'String'
-		Hora2In = datetime.time(hour = 22, minute = 0, second = 0)
-		Hora2Out = datetime.time(hour = 22, minute = 0, second = 0)
-		lista = []
-		lista.append((Hora1In, Hora1Out))
-		lista.append((Hora2In, Hora2Out))
-		estacionamiento = [lista for x in range(2)]
-		lista2 = []
-		lista2.append((Hora1In, Hora1Out))
-		lista2.append((Hora3In, Hora3Out))
-		lista2.append((Hora2In, Hora2Out))
-		estacionamiento2 = []
-		estacionamiento2.append(lista2)
-		estacionamiento2.append(lista)
-		x = reservar(Hora3In, Hora3Out, estacionamiento)
-		self.assertEqual(x, 1)
-
-	# malicia
-	def test_reservar_todo_None(self):
-		x = reservar(None, None, None)
-		self.assertEqual(x, 1)
+#===============================================================================
+#
+# 	
+# 	def testReservaDosHorasEnReservaMaxima(self): # Esquina (Manuel) Linea 65
+# 		capacidad = 10
+# 		reservas  = [(8,10),(15,17)]*capacidad
+# 		reserva = (15,16)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 		
+# 	def testReserva1HoraEntreCompletaReserva(self): # Esquina (Manuel) Linea 74
+# 		capacidad = 10
+# 		reservas  = [(6,10),(11,18)]*capacidad
+# 		reserva = (10,11)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 		
+# 	
+# 	def testReserva1HoraAlInicioEntreCompletaReserva(self): #Esquina (Manuel) Linea 83 
+# 		capacidad = 10
+# 		reservas  = [(7,18)]*capacidad
+# 		reserva = (6,7)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testReserva1HoraAlFinalEntreCompletaReserva(self): #Esquina(Manuel) Linea 91
+# 		capacidad = 10
+# 		reservas  = [(6,17)]*capacidad
+# 		reserva = (17,18)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testReserva1HoraInicioConCompletaReserva(self): # Esquina (Manuel) Linea 99
+# 		capacidad = 10
+# 		reservas  = [(6,18)]*capacidad
+# 		reserva = (6,7)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	def testReserva1HoraFinalConCompletaReserva(self): #Esquina (Manuel) Linea 107
+# 		capacidad = 10
+# 		reservas  = [(6,18)]*capacidad
+# 		reserva = (17,18)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	
+# 	def testReserva1HoraDespuesSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 115
+# 		capacidad = 10
+# 		reservas  = [(6,7),(7,8)]*capacidad
+# 		reserva = (8,9)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	
+# 	def testReserva1HoraAntesSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 124
+# 		capacidad = 10
+# 		reservas  = [(7,8),(8,9)]*capacidad
+# 		reserva = (6,7)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	
+# 	def testReserva1HoraEntrePrimeraSobreposicionReservas(self): #esquina maliciosa  (Manuel) Linea 133
+# 		capacidad = 10
+# 		reservas  = [(6,7),(7,8)]*capacidad
+# 		reserva = (6,7)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	
+# 	def testReserva1HoraEntreSegundaSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 142
+# 		capacidad = 10
+# 		reservas  = [(6,7),(7,8)]*capacidad
+# 		reserva = (7,8)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	def testReservaCeroHoras(self): #Esquina  (Manuel) Linea 152
+# 		pass
+# 	
+# 	def testReservaAntesdelas6(self): # Malicia frontera (Manuel) Linea 156
+# 		pass
+# 	
+# 	def testReservaLuegodelas18(self): #Malicia (Manuel) Linea 161
+# 		pass
+# 	
+# 	def testReservaHoraFinalMenorHoraInicialValidas(self): #Malicia (Manuel) Linea 166
+# 		pass
+# 	
+# 	def testReservaAntesdeLas6Inclusive(self): #Malicia Frontera (Manuel) Linea 171
+# 		pass
+# 	
+# 	def testReservaLuegodelas18Inclusive(self): #Malicia frontera (Manuel) Linea 176
+# 		pass
+# 				
+# 	def testReservacionInvalida_EntradaMenor(self): # Frontera (Daniel) Linea 52
+# 		pass
+# 	
+# 	def testReservacionInvalida_HoraEntradaMayor(self): #Frontera (Daniel) Buena la idea pero mal horario
+# 		pass
+# 
+# 	def testReservaSinCupoExtremosIguales(self): #Esquina (Chino) Linea 27
+# 		capacidad = 1
+# 		reservas  = [(8,10)]*capacidad
+# 		reserva = (8,10)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	def testReservaSinCupoExtremosDiferentes(self): # Esquina (Chino) Linea 33
+# 		capacidad = 1
+# 		reservas  = [(8,12)]*capacidad
+# 		reserva = (9,13)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 		
+# 	def testReservaConCupo(self): #Esquina (Chino) Linea 39
+# 		capacidad = 1
+# 		reservas  = [(8,12),(14,17)]*capacidad
+# 		reserva = (12,14)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 		
+# 	def testReservaConCupoDosPuestos(self): # Esquina (Chino) Linea 45 , modificar segundo horario
+# 		capacidad = 2
+# 		reservas  = [(8,12),(14,17)]*capacidad
+# 		reserva = (12,14)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testReservaSinCupoDosExtremos(self): #Esquina (Chino) Linea 52 (se puede dividir en dos pruebas por cada extremo)
+# 		capacidad = 1
+# 		reservas  = [(8,12),(14,17)]*capacidad
+# 		reserva = (11,15)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 	
+# 	def testReservaSinCupoDosExtremosDosPuestos(self): #Esquina (Chino) Linea 58 (se puede dividir , arreglar segundo horario)
+# 		capacidad = 1
+# 		reservas  = [(8,12),(14,17)]*capacidad
+# 		reserva = (12,15)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
+# 		
+# 	def testPuestosLlenos(self): #Esquinas maliciosas  (Chino) Linea 65 (dividir tal vez?) cuestionable...
+# 		capacidad = 3
+# 		reservas = [(6,17),(17,18), 
+# 					(6,8), (8,18), 
+# 					(6,12),(12,13),(13,18)]
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)
+# 		
+# 		self.assertEqual(estacionamiento.reservar(17,18),False)
+# 		self.assertEqual(estacionamiento.reservar(6,7),False)
+# 		self.assertEqual(estacionamiento.reservar(6,18),False)
+# 	
+# 	def testPuestoSuperLlenosconAlgunPuestoVacio(self): #Esquina maliciosa (Chino) Linea 83
+# 		capacidad = 10
+# 		reservas  = [(6,18)]*(capacidad-1) + [(6,17)] 
+# 		reserva = (17,18)
+# 		
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testJesus1(self): # Conjunto de reservaciones sin objetivo unico (Jesus) Linea 10
+# 		capacidad = 10
+# 		reservas = []
+# # 		a_reservar = ((8,12), (11,13), (10,12), (9,12), (7,12), (10,12), (7,12),(9,15), (10,18), (11, 14))
+# 		estacionamiento = Estacionamiento(capacidad,reservas)		
+# 		
+# 		for reserva in a_reservar:
+# 			assert estacionamiento.reservar(*reserva)
+# 	
+# 	def testFullParking(self):#Casos por malicia (Jesus) Linea 29
+# 		capacidad = 10
+# 		a_reservar = ((8,12), (11,13), (10,12), (9,12), (7,12), (10,12), (7,12),(9,15), (10,18), (11, 14))
+# 		estacionamiento = Estacionamiento(capacidad,[])		
+# 		
+# 		for reserva in a_reservar:
+# 			assert estacionamiento.reservar(*reserva)
+# 		
+# 		self.assertEqual(estacionamiento.reservar(9,13),False)
+# 		
+# 	def testReservaMaximaContenidaReservaUsuario(self): # Esquina agregada por Manuel
+# 		estacionamiento = Estacionamiento(1,[(11,12)])		
+# 		self.assertEqual(estacionamiento.reservar(10,13),False)
+# 
+# 	def testReservaMaximaContenidaReservaUsuarioDisponible(self): # Esquina agregada por Manuel
+# 		estacionamiento = Estacionamiento(2,[(11,12)])
+# 		self.assertEqual(estacionamiento.reservar(10,13),True)
+# 
+# 	def testReservaMaximaContenidaReservaUsuarioNoDisponibleDos(self): # Esquina agregada por Manuel
+# 		estacionamiento = Estacionamiento(2,[(11,12)]*2)
+# 		self.assertEqual(estacionamiento.reservar(10,13),False)
+# 		
+# 	def testCarrosMismoHorario(self):# Conjunto de reservaciones sin objetivo unico (Daniel) Linea 60
+# 		capacidad = 10
+# 		a_reservar = ((10, 12),(8, 12),(10, 12),(10, 12),(10, 12),(7, 12),(6, 12),(9, 12),(10, 12),(10, 12))
+# 		estacionamiento = Estacionamiento(capacidad,[])		
+# 		
+# 		for reserva in a_reservar:
+# 			assert estacionamiento.reservar(*reserva)
+# 		
+# 	def testOnceCarrosMismoHorario(self): # Conjunto de reservaciones sin objetivo unico (Daniel) Linea 63
+# 		capacidad = 10
+# 		a_reservar = ((10, 12),(8, 12),(10, 12),(10, 12),(10, 12),(7, 12),(6, 12),(9, 12),(10, 12),(10, 12))
+# 		estacionamiento = Estacionamiento(capacidad,[])		
+# 		
+# 		for reserva in a_reservar:
+# 			assert estacionamiento.reservar(*reserva)
+# 		
+# 		self.assertEqual(estacionamiento.reservar(7,12),False)
+# 		
+# 	def testExtremadamenteGrandeUnaHoraFinalNoDisponible(self): # Esquina agregada por Manuel
+# 		capacidad =4200
+# 		estacionamiento = Estacionamiento(capacidad,[(6,18)]*capacidad)		
+# 		self.assertEqual(estacionamiento.reservar(17,18),False)
+# 	
+# 	def testExtremadamenteGrandeUnaHoraInicioNoDisponible(self): # Esquina agregada por Manuel
+# 		capacidad =4200
+# 		estacionamiento = Estacionamiento(capacidad,[(6,18)]*capacidad)		
+# 		
+# 		self.assertEqual(estacionamiento.reservar(6,7),False)
+# 
+# 	def testExtremadamenteGrandeUnaHoraDisponible(self): # Esquina agregada por Manuel
+# 		capacidad = 1000
+# 		estacionamiento = Estacionamiento(capacidad,[(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14),(15,16),(17,18)]*(capacidad - 1) +\
+# 						 [(1,2),(3,4),(5,6),(7,8),(9,10),(11,12),(13,14),(15,16)])
+# 		self.assertEqual(estacionamiento.reservar(17,18),True)
+#===============================================================================
