@@ -9,8 +9,6 @@ from estacionamientos.forms import EstacionamientoForm
 from estacionamientos.forms import EstacionamientoReserva
 from estacionamientos.models import Estacionamiento, ReservasModel 
 
-
-
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
     # Si se hace un POST a esta vista implica que se quiere agregar un nuevo
@@ -86,6 +84,18 @@ def estacionamiento_detail(request, _id):
 
     return render(request, 'estacionamiento.html', {'form': form, 'estacionamiento': estacion})
 
+def saludar():
+    print("hola")
+    print("hola")
+    print("hola")
+    print("hola")
+    print("hola")
+    print("hola")
+    print("hola")
+    print("hola")
+    print("hola")
+    print("hola")
+    print("hola")
 
 def estacionamiento_reserva(request, _id):
     
@@ -99,8 +109,11 @@ def estacionamiento_reserva(request, _id):
     # Si se hace un GET renderizamos los estacionamientos con su formulario
     if request.method == 'GET':
         form = EstacionamientoReserva()
-        return render(request, 'estacionamientoReserva.html', {'form': form, 'estacionamiento': estacion})
-
+        return render(request, 'estacionamientoReserva.html', 
+                        {'form': form,
+                         "estacionamiento": estacion,
+                         "funcion" : saludar})
+        
     # Si es un POST estan mandando un request
     if request.method == 'POST':
         
@@ -133,7 +146,7 @@ def estacionamiento_reserva(request, _id):
                         FinalReserva = final_reserva
                     )
                     
-                    reservado.save() # Agrega la nueva reserva a la base de datos
+                    #reservado.save() # Agrega la nueva reserva a la base de datos
                                         
                     return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
                 
