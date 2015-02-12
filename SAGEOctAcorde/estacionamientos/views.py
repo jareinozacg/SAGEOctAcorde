@@ -142,12 +142,9 @@ def estacionamiento_reserva(request, _id):
                     reservado = ReservasModel(
                         Estacionamiento = estacion,
                         InicioReserva = inicio_reserva,
-                        Puesto = -1,
                         FinalReserva = final_reserva
                     )
-                    
-                    #reservado.save() # Agrega la nueva reserva a la base de datos
-                                        
+                    reservado.save() # Agrega la nueva reserva a la base de datos
                     return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
                 
                 return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
