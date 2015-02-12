@@ -79,9 +79,9 @@ def calculoPrecio(hin, hout, tarifa):
 		return pago
 
 
-def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
+def puedeReservarALas(horaIni,horaFin,capacidad,reservas):
 	'Verifica usando Marzullo si una reserva esta disponible'
-	
+	tablaMarzullo = crearTablaMarzullo(reservas)
 	tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
 	
 	best, beststart, bestend, cnt = 0,0,0,0

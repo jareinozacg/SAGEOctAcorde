@@ -51,11 +51,12 @@ class EstacionamientoForm(forms.Form):
 class EstacionamientoExtendedForm(ModelForm):
     Tarifa = forms.ModelChoiceField(
         queryset=Tarifa.tipo_granularidad, 
-        empty_label="Seleccione tipo de Tarifa"
+        empty_label="Seleccione tipo de Tarifa",
+        required = True
         )
 
     monto = forms.DecimalField( max_digits = 10, decimal_places=2,
-                                 label = 'Monto')
+                                 label = 'Monto', required = False)
     
     class Meta:
         model = Estacionamiento
