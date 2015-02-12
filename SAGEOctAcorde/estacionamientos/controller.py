@@ -3,6 +3,7 @@
 # Archivo con funciones de control para SAGE
 import functools
 import datetime
+from _decimal import Decimal
 
 
 def validarHorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
@@ -74,7 +75,8 @@ def calculoPrecio(hin, hout, tarifa):
 			pago+= tarifa.tarifa
 		return pago
 	else:
-		return tiempoTotal.seconds // 60 * tarifa.tarifa
+		pago = (tiempoTotal.seconds // 60) * (tarifa.tarifa / 60)
+		return pago
 
 
 def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
