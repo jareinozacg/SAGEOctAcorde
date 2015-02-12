@@ -68,10 +68,10 @@ def estacionamiento_detail(request, _id):
             form = EstacionamientoExtendedForm(request.POST)
             # Si el formulario
             if form.is_valid():
-                hora_in = form.cleaned_data['horarioin']
-                hora_out = form.cleaned_data['horarioout']
-                reserva_in = form.cleaned_data['horario_reserin']
-                reserva_out = form.cleaned_data['horario_reserout']
+                hora_in = form.cleaned_data['Apertura']
+                hora_out = form.cleaned_data['Cierre']
+                reserva_in = form.cleaned_data['Reservas_Inicio']
+                reserva_out = form.cleaned_data['Reservas_Cierre']
 
                 m_validado = validarHorarioEstacionamiento(hora_in, hora_out, reserva_in, reserva_out)
                 if not m_validado[0]:
@@ -79,12 +79,13 @@ def estacionamiento_detail(request, _id):
                                'mensaje': m_validado[1]}
                     return render(request, 'templateMensaje.html', context)
 
-                estacion.Tarifa = form.cleaned_data['tarifa']
+                estacion.Tarifa = form.cleaned_data['Tarifa']
                 estacion.Apertura = hora_in
                 estacion.Cierre = hora_out
                 estacion.Reservas_Inicio = reserva_in
                 estacion.Reservas_Cierre = reserva_out
-                estacion.NroPuesto = form.cleaned_data['puestos']
+                estacion.NroPuesto = form.cleaned_data['NroPuesto']
+                
 
                 estacion.save()
     else:
@@ -142,15 +143,7 @@ def estacionamiento_reserva(request, _id):
                            
                 if puedeReservarALas(inicio_reserva, final_reserva,\
                                 estacion.NroPuesto,tablaMarzullo):
-                    """
-                    reservar(inicio_reserva, final_reserva, listaReserva)
-                    reservaFinal = ReservasModel(
-                                        Estacionamiento = estacion,
-                                        Puesto = x[0],
-                                        InicioReserva = inicio_reserva,
-                                        FinalReserva = final_reserva
-                                    )
-                    reservaFinal.save()"""
+                    
                     precio = calculoPrecio(inicio_reserva, final_reserva, estacion.Tarifa)
                     context = {'color':'green',
                                'mensaje': precio}

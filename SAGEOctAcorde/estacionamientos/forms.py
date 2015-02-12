@@ -69,7 +69,7 @@ class EstacionamientoExtendedForm(ModelForm):
 
     horario_reserin = forms.TimeField(required = True, label = 'Horario Inicio Reserva')
     horario_reserout = forms.TimeField(required = True, label = 'Horario Fin Reserva')
-    tarifa = forms.ModelChoiceField(queryset=Tarifa.objects.all(), empty_label="(Seleccionar opcion)")
+   tarifa = forms.ModelChoiceField(queryset=Tarifa.objects.all(), empty_label="(Seleccionar opcion)")
     monto = forms.DecimalField( max_digits = 10, decimal_places=2,
                                  label = 'Monto', empty_label= 'Seleccione tarifa' )'''
 
