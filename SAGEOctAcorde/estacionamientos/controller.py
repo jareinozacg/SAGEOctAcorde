@@ -2,9 +2,10 @@
 
 # Archivo con funciones de control para SAGE
 import functools
+import datetime
 
 
-def HorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
+def validarHorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
 	'''
 		Chequea que el horario de estacionamiento de apertura y el horario de apertura 
 		de las reservas esten correctos.
@@ -81,7 +82,25 @@ def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
 			return False
 		
 	return True
+
+def timeDesdeCadena(timeCad):
+	'''
+	Funcion que dado una fecha en formato string, devuelve el datetime
+	'''
+	return datetime.datetime.strptime(timeCad, "%H:%M") # "%Y-%m-%d %H:%M" formato para fechas
+
+def crearTuplasHorasDesdeListaCadena(listaTuplas):
+	'''
+	Convierte tuplas de string a datetime
+	'''
+	listaHora = []
 	
+	for tupla in listaTuplas:
+		listaHora.append( (timeDesdeCadena(tupla[0]),timeDesdeCadena(tupla[1])) )
+	
+	return listaHora
+				
+
 
 def crearTablaMarzullo(reservas):
 	''' Funcion que dada una lista de reservaciones, devuelve 

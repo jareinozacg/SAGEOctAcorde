@@ -8,6 +8,7 @@ from estacionamientos.controller import *
 from estacionamientos.forms import *
 from estacionamientos.forms import *
 from estacionamientos.views import tablaMarzullo
+from estacionamientos.models import Estacionamiento
 
 
 ###################################################################
@@ -352,7 +353,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 18, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (True, ''))
 
 	# malicia
@@ -361,7 +362,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 11, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 18, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de apertura debe ser menor al horario de cierre'))
 
 	# caso borde
@@ -370,7 +371,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 18, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de apertura debe ser menor al horario de cierre'))
 
 	# caso borde
@@ -379,7 +380,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 11, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de inicio de reserva debe ser menor al horario de cierre'))
 
 	# caso borde
@@ -388,7 +389,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 12, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de inicio de reserva debe ser menor al horario de cierre'))
 
 	# caso borde
@@ -397,7 +398,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 12, minute = 0, second = 1)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 12, minute = 0, second = 1)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (True, ''))
 
 	# caso borde
@@ -406,7 +407,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 23, minute = 59, second = 59)
 		ReservaInicio = datetime.time(hour = 12, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 23, minute = 59, second = 59)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (True, ''))
 
 	# caso borde
@@ -415,7 +416,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 19, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 20, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de comienzo de reserva debe ser menor al horario de cierre del estacionamiento'))
 
 	# caso borde
@@ -424,7 +425,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 19, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 20, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de comienzo de reserva debe ser menor al horario de cierre del estacionamiento'))
 
 	# malicia
@@ -433,7 +434,7 @@ class SimpleFormTestCase(TestCase):
 		horaFin = datetime.time(hour = 18, minute = 0, second = 0)
 		reservaInicio = datetime.time(hour = 17, minute = 0, second = 0)
 		reservaFin = datetime.time(hour = 20, minute = 0, second = 0)
-		x = HorarioEstacionamiento(horaInicio, horaFin, reservaInicio, reservaFin)
+		x = validarHorarioEstacionamiento(horaInicio, horaFin, reservaInicio, reservaFin)
 		self.assertEqual(x, (False, 'El horario de cierre del estacionamiento debe ser mayor o igual al horario de finalización de las reservas'))
 
 	# malicia
@@ -442,7 +443,7 @@ class SimpleFormTestCase(TestCase):
 		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
 		ReservaInicio = datetime.time(hour = 10, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 11, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
+		x = validarHorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
 		self.assertEqual(x, (False, 'El horario de inicio de reserva debe ser mayor o igual al horario de apertura del estacionamiento'))
 
 
@@ -553,96 +554,77 @@ class SimpleFormTestCase(TestCase):
 		self.assertEqual(x, (False, 'El horario de inicio de reserva debe estar en un horario válido'))
 
 
-	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-	''  CASOS DE PRUEBA DESDE AQUI
-	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 #===============================================================================
-# 	def testEstacionamientoVacio(self): #Frontera
-# 		capacidad = 10
-# 		horaIni = datetime.time(6)
-# 		horaFin = datetime.time(18)
-# 		tablaMarzullo = []
-# 		
-# 		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
-# 
-# 	def testReservarUnaHoraEnHoraReservada(self): #Frontera
-# 		
-# 		capacidad = 10
-# 		horaIni = datetime.time(9)
-# 		horaFin = datetime.time(11)
-# 		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
-# 						 (datetime.time(11) , 1 , 1*capacidad)] * capacidad		
-# 		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
-# 
-# 		
-# 		assert len(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)) == 1
-# 	
-# 	def testReservarUnaHoraEnHoraMayorALaReservada(self): #Frontera (Manuel) Linea 45
-# 		capacidad = 10
-# 		horaIni = datetime.time(15)
-# 		horaFin = datetime.time(16)
-# 		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
-# 						 (datetime.time(11) , 1 , 1)]*capacidad
-# 		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
-# 		
-# 		
-# 		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
-# 		
-# 	def testReservarUnaHoraEnHoraMenorALaReservada(self): #Frontera (Manuel) Linea 55
-# 		capacidad = 10
-# 		horaIni = datetime.time(7)
-# 		horaFin = datetime.time(8)
-# 		tablaMarzullo = [(datetime.time(9) , -1 , 1),\
-# 						 (datetime.time(11) , 1 , 1)]*capacidad
-# 		tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
-# 		
-# 		
-# 		assert puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo)
+# PRUEBAS UNITARIAS DE FUNCION puedeReservarALas
 #===============================================================================
-	
-	def formatHora(self,hora):
-		'''
-		Funcion que dado una fecha en formato string, devuelve el datetime
-		'''
-		return datetime.datetime.strptime(hora, "%H:%M") # "%Y-%m-%d %H:%M" formato para fechas
-	
-	def crearTuplasHoras(self,listaTuplas):
-		'''
-		Convierte tuplas de string a datetime
-		'''
-		listaHora = []
-		
-		for tupla in listaTuplas:
-			listaHora.append( (self.formatHora(tupla[0]),self.formatHora(tupla[1])) )
-		
-		return listaHora
-				
-		
-	def testReservarEjemplo(self):
-		'''
-		Ejemplo Formato
-		'''
-		capacidad = 10
-		horaIni = self.formatHora("16:00")
-		horaFin = self.formatHora("17:00")
-		puestosOcupados = self.crearTuplasHoras(                              \
-					[("16:00", "18:00"), ("3:00", "9:00")]                    \
-		)
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		# Opcion 1
-		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
-		# Opcion 2
-	#	self.assertRaises(AssertionError, puedeReservarALas, horaIni,horaFin,capacidad,tablaMarzullo)
-		
-	def testReservaDosHorasEnReservaMaxima(self): # Esquina (Manuel) Linea 65
-		capacidad = 10
-		horaIni = self.formatHora("15:00")
-		horaFin = self.formatHora("16:00")
-		puestosOcupados = self.crearTuplasHoras(                              \
-					[("08:00", "10:00"), ("15:00", "17:00")]*capacidad        \
-		) 
+
+#===============================================================================
+# ESTACIONAMIENTO CON 1 PUESTO
+#===============================================================================
+	def testEstacionamientoVacio(self):
+		'Esquina: Reserva de 30 min en estacionamiento vacio'
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:30")
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, []))
+
+	def testReservar30MinEn30MinReservados(self): 
+		'Esquina: Reserva en una hora previamente ocupada'
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
 		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+	
+	def testReservar30MinEnHoraMayorALaReservada(self): 
+		'Frontera: Reserva media hora en otra previamente ocupada'
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:30")
+		horaFin = timeDesdeCadena("16:00")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+	
+	def testReservar30MinEnHoraColisionaConReservada1MinIzqui(self):
+		'''Frontera: Reserva media hora que colisiona por la izquierda en \
+		1 min con una reserva previamente realizada'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:29")
+		horaFin = timeDesdeCadena("15:59")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		
+	def testReservar30MinEnHoraMenorALaReservada(self): 
+		'Esquina: Reserva 30 min en otra previamente ocupada'
+		capacidad = 1
+		horaIni = timeDesdeCadena("14:30")
+		horaFin = timeDesdeCadena("15:00")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+	
+	def testReservar30MinEnHoraColisionaConReservada1MinDere(self):
+		'''Frontera: Reserva media hora que colisiona por la derecha en \
+		1 min con una reserva previamente realizada'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("14:31")
+		horaFin = timeDesdeCadena("15:01")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		
+		
+	def testReserva28MinEntreDosReservasDe30NoBorde(self): 
+		'''Normal: Reserva 28 min entre dos reservas de 30 min , sin tocar sus bordes por 1 min'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:31")
+		horaFin = timeDesdeCadena("15:59")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		
 #===============================================================================
 #
 # 	
