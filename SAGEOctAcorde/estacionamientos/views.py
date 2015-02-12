@@ -146,7 +146,6 @@ def estacionamiento_reserva(request, _id):
                     reservado = ReservasModel(
                         Estacionamiento = estacion,
                         InicioReserva = inicio_reserva,
-                        Puesto = -1,
                         FinalReserva = final_reserva
                     )
                     

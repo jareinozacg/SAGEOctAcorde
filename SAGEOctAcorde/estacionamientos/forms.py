@@ -50,7 +50,7 @@ class EstacionamientoForm(forms.Form):
 
 class EstacionamientoExtendedForm(ModelForm):
     Tarifa = forms.ModelChoiceField(
-        queryset=Tarifa.objects.all(), 
+        queryset=Tarifa.tipo_granularidad, 
         empty_label="Seleccione tipo de Tarifa"
         )
 
