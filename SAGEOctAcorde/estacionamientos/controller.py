@@ -3,7 +3,7 @@
 # Archivo con funciones de control para SAGE
 import functools
 import datetime
-
+from _decimal import Decimal
 
 def validarHorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
 	'''
@@ -42,16 +42,20 @@ def validarHorarioReserva(inicioReserva, finalReserva, aperturaReservaEst, cierr
 	
 	return (True, '')
 
-
-def compararTuplasMarzullo(tupla1, tupla2):
-	'Si tupla1 > tupla2 retorna 1; sino -1'
+def calculoPrecio(hin, hout, tarifa):
+	d = datetime.date(1111, 1, 11)
+	fchcomienzo = datetime.datetime.combine(d, hin)
+	fchfinal = datetime.datetime.combine(d, hout)
+	tiempoTotal = fchfinal - fchcomienzo
 	
-	if tupla1[0] > tupla2[0]: return 1
-	if tupla1[0] < tupla2[0]: return -1
-
-	if tupla1[1] >= tupla2[1]: return -1
-
-	return 1
+	if(tarifa.granularidad == "hrs"):
+		pago = tiempoTotal.seconds // 3600 * tarifa.tarifa
+		if tiempoTotal.seconds % 3600 != 0:
+			pago+= tarifa.tarifa
+		return pago
+	else:
+		pago = (tiempoTotal.seconds // 60) * (tarifa.tarifa / 60)
+		return pago
 
 def interseccion(A_inicio,A_final,B_inicio,B_final):
 	''' 
@@ -62,6 +66,27 @@ def interseccion(A_inicio,A_final,B_inicio,B_final):
 	finalMasCorto  = min(A_final, B_final)
 	return inicioMasLargo < finalMasCorto
 
+def crearTablaMarzullo(reservas):
+	''' Funcion que dada una lista de reservaciones, devuelve 
+		la tabla(lista) ordenada asociada al algoritmo de Marzullo'''
+	
+	listaTuplas = []
+	
+	for elemReserva in reservas:
+		listaTuplas.append((elemReserva[0], -1))
+		listaTuplas.append((elemReserva[1],  1))
+
+	return listaTuplas
+
+def compararTuplasMarzullo(tupla1, tupla2):
+	'Si tupla1 > tupla2 retorna 1; sino -1'
+	
+	if tupla1[0] > tupla2[0]: return 1
+	if tupla1[0] < tupla2[0]: return -1
+
+	if tupla1[1] >= tupla2[1]: return -1
+
+	return 1
 
 def puedeReservarALas(horaIni,horaFin,capacidad,reservas):
 	'Verifica usando Marzullo si una reserva esta disponible'
@@ -100,17 +125,3 @@ def crearTuplasHorasDesdeListaCadena(listaTuplas):
 	
 	return listaHora
 				
-
-
-def crearTablaMarzullo(reservas):
-	''' Funcion que dada una lista de reservaciones, devuelve 
-		la tabla(lista) ordenada asociada al algoritmo de Marzullo'''
-	
-	listaTuplas = []
-	
-	for elemReserva in reservas:
-		listaTuplas.append((elemReserva[0], -1))
-		listaTuplas.append((elemReserva[1],  1))
-
-	return listaTuplas
-

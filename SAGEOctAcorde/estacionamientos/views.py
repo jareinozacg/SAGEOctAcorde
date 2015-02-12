@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
-
+from django.shortcuts       import render
+from decimal import Decimal
 from estacionamientos.controller import *
-from estacionamientos.forms import EstacionamientoExtendedForm
-from estacionamientos.forms import EstacionamientoForm
-from estacionamientos.forms import EstacionamientoReserva
-from estacionamientos.models import Estacionamiento, ReservasModel 
+from estacionamientos.forms import *
+from estacionamientos.models import *
+
 
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
@@ -22,8 +21,9 @@ def estacionamientos_all(request):
             # Parte de la entrega era limitar la cantidad maxima de
             # estacionamientos a 5
             if len(estacionamientos) >= 5:
-                    return render(request, 'templateMensaje.html',
-                                  {'color':'red', 'mensaje':'No se pueden agregar más estacionamientos'})
+                context = {'color':'red', 
+                           'mensaje':'No se pueden agregar más estacionamientos'}
+                return render(request, 'templateMensaje.html', context)
 
             # Si el formulario es valido, entonces creamos un objeto con
             # el constructor del modelo
@@ -45,8 +45,10 @@ def estacionamientos_all(request):
     # Si no es un POST es un GET, y mandamos un formulario vacio
     else:
         form = EstacionamientoForm()
-
-    return render(request, 'base.html', {'form': form, 'estacionamientos': estacionamientos})
+        
+    context = {'form': form, 
+               'estacionamientos': estacionamientos}
+    return render(request, 'base.html', context)
 
 def estacionamiento_detail(request, _id):
 
@@ -60,25 +62,31 @@ def estacionamiento_detail(request, _id):
     if request.method == 'POST':
             # Leemos el formulario
             form = EstacionamientoExtendedForm(request.POST)
+            
             # Si el formulario
             if form.is_valid():
-                hora_in = form.cleaned_data['horarioin']
-                hora_out = form.cleaned_data['horarioout']
-                reserva_in = form.cleaned_data['horario_reserin']
-                reserva_out = form.cleaned_data['horario_reserout']
+                hora_in = form.cleaned_data['Apertura']
+                hora_out = form.cleaned_data['Cierre']
+                reserva_in = form.cleaned_data['Reservas_Inicio']
+                reserva_out = form.cleaned_data['Reservas_Cierre']
 
                 m_validado = validarHorarioEstacionamiento(hora_in, hora_out, reserva_in, reserva_out)
                 if not m_validado[0]:
-                    return render(request, 'templateMensaje.html', {'color':'red', 'mensaje': m_validado[1]})
+                    context = {'color':'red', 
+                               'mensaje': m_validado[1]}
+                    return render(request, 'templateMensaje.html', context)
 
-                estacion.Tarifa = form.cleaned_data['tarifa']
+                estacion.Tarifa = form.cleaned_data['Tarifa']
                 estacion.Apertura = hora_in
                 estacion.Cierre = hora_out
                 estacion.Reservas_Inicio = reserva_in
                 estacion.Reservas_Cierre = reserva_out
-                estacion.NroPuesto = form.cleaned_data['puestos']
-
+                estacion.NroPuesto = form.cleaned_data['NroPuesto']
+                
+                estacion.Tarifa.tarifa = Decimal(form.cleaned_data['monto'])
                 estacion.save()
+                estacion.Tarifa.save()
+                
     else:
         form = EstacionamientoExtendedForm()
 
@@ -94,13 +102,15 @@ def estacionamiento_reserva(request, _id):
     except ObjectDoesNotExist:
         return render(request, '404.html')    
 
+
     # Si se hace un GET renderizamos los estacionamientos con su formulario
     if request.method == 'GET':
         form = EstacionamientoReserva()
-        return render(request, 'estacionamientoReserva.html', 
-                        {'form': form,
-                         "estacionamiento": estacion})
-        
+        context = {'form': form, 
+                   'estacionamiento': estacion}
+        return render(request, 'estacionamientoReserva.html', context)
+
+
     # Si es un POST estan mandando un request
     if request.method == 'POST':
         
@@ -115,8 +125,11 @@ def estacionamiento_reserva(request, _id):
                 horario_aceptado = m_validado[0]
                 
                 # Si no es valido devolvemos el request
+
                 if not horario_aceptado:
-                    return render(request, 'templateMensaje.html', {'color':'red', 'mensaje': m_validado[1]})
+                    context = {'color':'red', 
+                               'mensaje': m_validado[1]}
+                    return render(request, 'templateMensaje.html', context)
 
                 #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
                 reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
@@ -126,17 +139,30 @@ def estacionamiento_reserva(request, _id):
                 if puedeReservarALas(inicio_reserva, final_reserva,\
                                 estacion.NroPuesto,reservas):
                     
+                    precio = calculoPrecio(inicio_reserva, final_reserva, estacion.Tarifa)
+                    context = {'color':'green',
+                               'mensaje': precio}
+                    
                     reservado = ReservasModel(
                         Estacionamiento = estacion,
                         InicioReserva = inicio_reserva,
+                        Puesto = -1,
                         FinalReserva = final_reserva
                     )
+                    
                     reservado.save() # Agrega la nueva reserva a la base de datos
-                    return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
+                    
+                    return render(request, 'templateMensaje.html', context)
                 
-                return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
+                else:
+                    context = {'color':'red', 
+                               'error':'No hay un puesto disponible para ese horario'}
+                    return render(request, 'templateMensaje.html', context)
+
     else:
         form = EstacionamientoReserva()
+        context = {'form': form, 
+                   'estacionamiento': estacion}
 
-    return render(request, 'estacionamientoReserva.html', {'form': form, 'estacionamiento': estacion})
+    return render(request, 'estacionamientoReserva.html', context)
 

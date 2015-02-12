@@ -82,11 +82,41 @@
          
             <!--center-right-->
           <!--/col-span-6-->
-     
-       <div class="col-md-8" style="color:{{color}}"> 
-			{{mensaje}}
-      <hr>              
-    </div><div class="col-md-4">
+		<script type="text/javascript">
+		function pagoRealizado(){
+			var c = confirm("Desea realizar la reservacion?");
+			if(c == true){
+				alert("Pago realizado con exito!");
+				window.location.href = ""
+			}
+		};
+		
+		function pagoCancelado(){
+			var c = confirm("Seguro que desea cancelar su reservacion?");
+			if(c == true){
+				alert("Reservacion cancelada!");
+				window.history.back() = ""
+			}
+		};
+		</script>
+		
+       <div class="col-md-8" style="color:{{color}}; font-weight: 600;"> 
+      	{% if error%}
+      		{{error}}
+      	{% else %}
+       		Reserva posible!<br>
+			El monto a pagar es de: {{mensaje}} Bs.
+			
+      <hr>
+      <button class="btn btn-primary" onclick=pagoRealizado()>
+      Reservar
+      </button>
+      <button class="btn btn-primary" onclick=pagoCancelado()>
+      Cancelar
+      </button>
+      {% endif %}            
+    </div>
+    <div class="col-md-4">
 
     
           

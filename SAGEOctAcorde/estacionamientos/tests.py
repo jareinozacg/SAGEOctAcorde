@@ -2,13 +2,16 @@
 
 from django.test import Client
 from django.test import TestCase
+from django.core.wsgi import get_wsgi_application
 import unittest
 import datetime
 from estacionamientos.controller import *
 from estacionamientos.forms import *
-from estacionamientos.forms import *
-from estacionamientos.models import Estacionamiento
+from estacionamientos.models import Estacionamiento, Tarifa
 
+
+#Iniciando Aplicaciones
+application = get_wsgi_application()
 
 ###################################################################
 #                    ESTACIONAMIENTO VISTA DISPONIBLE
@@ -434,7 +437,7 @@ class SimpleFormTestCase(TestCase):
 		reservaInicio = datetime.time(hour = 17, minute = 0, second = 0)
 		reservaFin = datetime.time(hour = 20, minute = 0, second = 0)
 		x = validarHorarioEstacionamiento(horaInicio, horaFin, reservaInicio, reservaFin)
-		self.assertEqual(x, (False, 'El horario de cierre del estacionamiento debe ser mayor o igual al horario de finalización de las reservas'))
+		self.assertEqual(x, (False, 'El horario de cierre del estacionamiento debe ser mayor o igual al horario de finalizaciÃ³n de las reservas'))
 
 	# malicia
 	def test_CierreReserva_Menos_HoraInicioEstacionamiento(self):
@@ -541,7 +544,7 @@ class SimpleFormTestCase(TestCase):
 		HoraApertura = datetime.time(hour = 12, minute = 0, second = 0)
 		HoraCierre = datetime.time(hour = 18, minute = 0, second = 0)
 		x = validarHorarioReserva(ReservaInicio, ReservaFin, HoraApertura, HoraCierre)
-		self.assertEqual(x, (False, 'El horario de cierre de reserva debe estar en un horario válido'))
+		self.assertEqual(x, (False, 'El horario de cierre de reserva debe estar en un horario vÃ¡lido'))
 
 	# caso borde
 	def test_HorarioReservaInvalido_ReservaInicial_Menor_HorarioApertura(self):
@@ -550,7 +553,7 @@ class SimpleFormTestCase(TestCase):
 		HoraApertura = datetime.time(hour = 12, minute = 0, second = 0)
 		HoraCierre = datetime.time(hour = 18, minute = 0, second = 0)
 		x = validarHorarioReserva(ReservaInicio, ReservaFin, HoraApertura, HoraCierre)
-		self.assertEqual(x, (False, 'El horario de inicio de reserva debe estar en un horario válido'))
+		self.assertEqual(x, (False, 'El horario de inicio de reserva debe estar en un horario vÃ¡lido'))
 
 
 #==============================================================================
@@ -756,7 +759,7 @@ class SimpleFormTestCase(TestCase):
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 
 	def testReserva29MinEntreReservaDe30MinbordeIzqui(self): 
-		'''Frontera: Reserva 29 min dentro de una reserva chocando por la izquierda con el borde élla'''
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la izquierda con el borde Ã©lla'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("15:29")
@@ -764,7 +767,7 @@ class SimpleFormTestCase(TestCase):
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 
 	def testReserva29MinEntreReservaDe30MinbordeDere(self): 
-		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde Ã©lla'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:01")
 		horaFin = timeDesdeCadena("15:30")
@@ -772,7 +775,7 @@ class SimpleFormTestCase(TestCase):
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 		
 	def testReserva1minSuperponiendoReservaDerecha(self): 
-		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde Ã©lla'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:01")
 		horaFin = timeDesdeCadena("15:02")
@@ -781,7 +784,7 @@ class SimpleFormTestCase(TestCase):
 		
 		
 	def testReserva1minSuperponiendoReservaIzquierda(self): 
-		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde Ã©lla'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("15:01")
@@ -789,7 +792,7 @@ class SimpleFormTestCase(TestCase):
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 		
 	def testReserva2MinSuperponiendoReservasJuntas(self): 
-		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde Ã©lla'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("15:02")
@@ -797,7 +800,7 @@ class SimpleFormTestCase(TestCase):
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 		
 	def testReserva4MinSolapanadoReservasJuntas(self): 
-		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde Ã©lla'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("14:59")
 		horaFin = timeDesdeCadena("15:03")
@@ -997,3 +1000,179 @@ class SimpleFormTestCase(TestCase):
 		horaFin = timeDesdeCadena("23:59")
 		puestosOcupados =  [("00:00","23:59")]*capacidad
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))   
+		
+###################################################################
+#                    ESTACIONAMIENTO VISTA DISPONIBLE
+###################################################################
+
+###################################################################
+#                    TEST CALCULAR PAGO
+###################################################################
+class CalcularPagoTest(TestCase):
+	
+	global DOS_CENTIMOS
+	DOS_CENTIMOS = Decimal(10) ** -2
+	
+	def setUp(self):
+		'Se crean objetos tipo para los equemas correspondientes'
+		#Taifas
+		Tarifa.objects.create(nombre="PruebaHoras",   tarifa = 12, granularidad = "hrs")
+		Tarifa.objects.create(nombre="PruebaMinutos", tarifa = 12, granularidad = "min")
+		#Estacionamiento
+		Estacionamiento.objects.create(Propietario="OctAcorde", Nombre="PruebaPago", \
+									   Direccion = "Sartenejas", Rif = "V-229007500",\
+									   Apertura = datetime.time(hour = 6, minute = 0),
+									   Cierre   = datetime.time(hour = 18, minute = 0))
+	
+	###################################################################
+	#                       PAGO POR HORA
+	###################################################################
+	
+	#Frontera
+	def test_pago_por_Hora_1horaJusta(self):
+		'Se calcula el pago de 1 hora exacta.'
+				
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 7, minute = 0)
+		
+		pago = Decimal(tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut,tarifaPorHora), pago)
+	
+	#Normal
+	def test_pago_por_Hora_2horas(self):
+		'Se calcula el pago de dos horas, inciciando en horas y media'
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = datetime.time(hour = 6, minute = 30)
+		horaOut = datetime.time(hour = 8, minute = 30)
+		
+		pago = Decimal(2*tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut,tarifaPorHora),pago)
+
+	#Frontera
+	def test_pago_por_Hora_1h1min(self):
+		"Se calcula el pago de 1 hora con 1 minuto"
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 7, minute = 1)
+
+		pago = Decimal(2*tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), pago)
+
+	#malicia
+	def test_pago_por_Hora_59min(self):
+		'Se calcula el pago por 59 minutos'
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 6, minute = 59)
+	
+		pago = Decimal(tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), pago)
+
+	#Frontera
+	def test_pago_por_hora_MaximasHoras(self):
+		'Prueba con las horas maximas de apertura y cierre de un estacionamiento de 12 horas.'
+		estacionamientoPrueba =  Estacionamiento.objects.get(Nombre="PruebaPago")
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = estacionamientoPrueba.Apertura
+		horaOut = estacionamientoPrueba.Cierre
+	
+		pago = Decimal(tarifaPorHora.tarifa*12).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), pago)
+	
+	#Frontera
+	def test_pago_por_hora_Max24Horas(self):
+		'Prueba con el maximo tiempo de reserva en un dia'
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = datetime.time(hour = 0, minute = 0)
+		horaOut = datetime.time(hour = 23, minute = 59)
+		
+		pago = Decimal(24*tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), pago)
+		
+	###################################################################
+	#                       PAGO POR MINUTO
+	###################################################################
+	
+	#Frontera
+	def test_pago_por_minuto_1min(self):
+		'Se calcula el pago por 1 min exacto'
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")	
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 6, minute = 1)
+		
+		factor = Decimal(1/60)
+		pago = Decimal(factor*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+
+	#Normal
+	def test_pago_por_minuto_15min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 6, minute = 15)
+
+		factor = Decimal(15/60)
+		pago = Decimal(factor*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+	
+	#Frontera
+	def test_pago_por_minuto_60min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 7, minute = 0)
+	
+
+		pago = Decimal(tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+	
+	#Frontera
+	def test_pago_por_minuto_59min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 6, minute = 59)
+	
+		factor = Decimal(59/60)
+		pago = Decimal(factor*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+	
+	#Frontera
+	def test_pago_por_minuto_61min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 7, minute = 1)
+	
+		factor = Decimal(61/60)
+		pago = Decimal(factor*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto),pago)
+	
+	#Normal
+	def test_pago_por_minuto_120min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 45)
+		horaOut = datetime.time(hour = 8, minute = 45)
+	
+		pago = Decimal(2*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+	
+	#Frontera
+	def test_pago_por_minuto_MaxMin(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		estacionamientoPrueba =  Estacionamiento.objects.get(Nombre="PruebaPago")
+		#Suponiendo que se pueden obtener las horas de apertura y #cierre de un estacionamiento.
+	
+		horaIn  = estacionamientoPrueba.Apertura
+		horaOut = estacionamientoPrueba.Cierre
+	
+		minutos = 12*60
+		pago = Decimal(minutos*(tarifaPorMinuto.tarifa/60)).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorMinuto), pago)
+	
+	#Inseguros
+	def test_pago_por_minuto_Max24Horas(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")	
+		horaIn  = datetime.time(hour = 0, minute = 0)
+		horaOut = datetime.time(hour = 23, minute = 59)
+	
+		minutos = 23*60 + 59
+		pago = Decimal(minutos*(tarifaPorMinuto.tarifa/60)).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorMinuto),pago)
