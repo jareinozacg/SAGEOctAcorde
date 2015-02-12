@@ -1015,7 +1015,7 @@ class CalcularPagoTest(TestCase):
 		horaIn  = datetime.time(hour = 6, minute = 0)
 		horaOut = datetime.time(hour = 7, minute = 0)
 		
-		pago = Decimal(12).quantize(DOS_CENTIMOS)
+		pago = Decimal(tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
 		self.assertEqual(calculoPrecio(horaIn,horaOut,tarifaPorHora), pago)
 	
 	#Normal
@@ -1025,7 +1025,7 @@ class CalcularPagoTest(TestCase):
 		horaIn  = datetime.time(hour = 6, minute = 30)
 		horaOut = datetime.time(hour = 8, minute = 30)
 		
-		pago = Decimal(2*12).quantize(DOS_CENTIMOS)
+		pago = Decimal(2*tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
 		self.assertEqual(calculoPrecio(horaIn,horaOut,tarifaPorHora),pago)
 
 	#Frontera
@@ -1035,7 +1035,7 @@ class CalcularPagoTest(TestCase):
 		horaIn  = datetime.time(hour = 6, minute = 0)
 		horaOut = datetime.time(hour = 7, minute = 1)
 
-		pago = Decimal(2*12).quantize(DOS_CENTIMOS)
+		pago = Decimal(2*tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
 		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), pago)
 
 	#malicia
@@ -1045,7 +1045,7 @@ class CalcularPagoTest(TestCase):
 		horaIn  = datetime.time(hour = 6, minute = 0)
 		horaOut = datetime.time(hour = 6, minute = 59)
 	
-		pago = Decimal(12).quantize(DOS_CENTIMOS)
+		pago = Decimal(tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
 		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), pago)
 
 	#Frontera
@@ -1056,7 +1056,7 @@ class CalcularPagoTest(TestCase):
 		horaIn  = estacionamientoPrueba.Apertura
 		horaOut = estacionamientoPrueba.Cierre
 	
-		pago = Decimal(12*12).quantize(DOS_CENTIMOS)
+		pago = Decimal(tarifaPorHora.tarifa*12).quantize(DOS_CENTIMOS)
 		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), pago)
 	
 	#Frontera
@@ -1066,7 +1066,7 @@ class CalcularPagoTest(TestCase):
 		horaIn  = datetime.time(hour = 0, minute = 0)
 		horaOut = datetime.time(hour = 23, minute = 59)
 		
-		pago = Decimal(24*12).quantize(DOS_CENTIMOS)
+		pago = Decimal(24*tarifaPorHora.tarifa).quantize(DOS_CENTIMOS)
 		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), pago)
 		
 	###################################################################
@@ -1080,80 +1080,79 @@ class CalcularPagoTest(TestCase):
 		horaIn  = datetime.time(hour = 6, minute = 0)
 		horaOut = datetime.time(hour = 6, minute = 1)
 		
-		pago = Decimal((1/60)*12).quantize(DOS_CENTIMOS)
+		factor = Decimal(1/60)
+		pago = Decimal(factor*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
 		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
 
-'''
-#Normal
-def test_pago_por_minuto_15min(self):
-	tarifaPorMinuto = Tarifa.objects.get(nombre="Minutos")
-	horaIn  = datetime.time(hour = 6, minute = 0)
-	horaOut = datetime.time(hour = 6, minute = 15)
+	#Normal
+	def test_pago_por_minuto_15min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 6, minute = 15)
 
-	tarifa  = 12
+		factor = Decimal(15/60)
+		pago = Decimal(factor*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+	
+	#Frontera
+	def test_pago_por_minuto_60min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 7, minute = 0)
+	
 
-	self.assertEqual(calculoPrecio(horaIn,horaOut, tarifa), (15/60)*12)
-
-#Frontera
-def test_pago_por_minuto_60min(self):
-	tarifaPorMinuto = Tarifa.objects.get(nombre="Minutos")
-	horaIn  = datetime.time(hour = 6, minute = 0)
-	horaOut = datetime.time(hour = 7, minute = 0)
-
-	tarifa  = 12
-
-	self.assertEqual(calculoPrecio(horaIn,horaOut, tarifa), 12)
-
-#Frontera
-def test_pago_por_minuto_59min(self):
-	tarifaPorMinuto = Tarifa.objects.get(nombre="Minutos")
-	horaIn  = datetime.time(hour = 6, minute = 0)
-	horaOut = datetime.time(hour = 6, minute = 59)
-
-	tarifa  = 12
-
-	self.assertEqual(calculoPrecio(horaIn,horaOut, tarifa), (59/60)*12)
-
-#Frontera
-def test_pago_por_minuto_61min(self):
-	tarifaPorMinuto = Tarifa.objects.get(nombre="Minutos")
-	horaIn  = datetime.time(hour = 6, minute = 0)
-	horaOut = datetime.time(hour = 7, minute = 1)
-
-	tarifa  = 12
-
-	self.assertEqual(calculoPrecio(horaIn,horaOut, tarifa), 12 + (1/60)*12)
-
-#Normal
-def test_pago_por_minuto_120min(self):
-	tarifaPorMinuto = Tarifa.objects.get(nombre="Minutos")
-	horaIn  = datetime.time(hour = 6, minute = 45)
-	horaOut = datetime.time(hour = 8, minute = 45)
-
-	tarifa  = 12
-
-	self.assertEqual(calculoPrecio(horaIn,horaOut, tarifa), 2*12)
-
-#Frontera
-def test_pago_por_minuto_MaxMin(self):
-	tarifaPorMinuto = Tarifa.objects.get(nombre="Minutos")
-	#Suponiendo que se pueden obtener las horas de apertura y #cierre de un estacionamiento.
-
-	horaIn  = estacionamiento.Apertura
-	horaOut = estacionamiento.Cierre
-
-	tarifa  = 12
-	minutos = (horaOut - horaIn) * 60
-
-	self.assertEqual(calculoPrecio(horaIn, horaOut, tarifa), minutos*12)
-
-#Inseguros
-def test_pago_por_hora_Max24Horas(self):
-	tarifaPorMinuto = Tarifa.objects.get(nombre="Minutos")	
-	horaIn  = datetime.time(hour = 6, minute = 0)
-	horaOut = datetime.time(hour = 6, minute = 0)
-
-	minutos = 24*60
-
-	self.assertEqual(calculoPrecio(hotaIni, horaOut, tarifaPorMinutos), minutos*12)
-'''
+		pago = Decimal(tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+	
+	#Frontera
+	def test_pago_por_minuto_59min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 6, minute = 59)
+	
+		factor = Decimal(59/60)
+		pago = Decimal(factor*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+	
+	#Frontera
+	def test_pago_por_minuto_61min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 7, minute = 1)
+	
+		factor = Decimal(61/60)
+		pago = Decimal(factor*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto),pago)
+	
+	#Normal
+	def test_pago_por_minuto_120min(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		horaIn  = datetime.time(hour = 6, minute = 45)
+		horaOut = datetime.time(hour = 8, minute = 45)
+	
+		pago = Decimal(2*tarifaPorMinuto.tarifa).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn,horaOut, tarifaPorMinuto), pago)
+	
+	#Frontera
+	def test_pago_por_minuto_MaxMin(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")
+		estacionamientoPrueba =  Estacionamiento.objects.get(Nombre="PruebaPago")
+		#Suponiendo que se pueden obtener las horas de apertura y #cierre de un estacionamiento.
+	
+		horaIn  = estacionamientoPrueba.Apertura
+		horaOut = estacionamientoPrueba.Cierre
+	
+		minutos = 12*60
+		pago = Decimal(minutos*(tarifaPorMinuto.tarifa/60)).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorMinuto), pago)
+	
+	#Inseguros
+	def test_pago_por_minuto_Max24Horas(self):
+		tarifaPorMinuto = Tarifa.objects.get(nombre="PruebaMinutos")	
+		horaIn  = datetime.time(hour = 0, minute = 0)
+		horaOut = datetime.time(hour = 23, minute = 59)
+	
+		minutos = 23*60 + 59
+		pago = Decimal(minutos*(tarifaPorMinuto.tarifa/60)).quantize(DOS_CENTIMOS)
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorMinuto),pago)
+	
