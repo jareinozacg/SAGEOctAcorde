@@ -987,71 +987,75 @@ class SimpleTest(unittest.TestCase):
 #                    ESTACIONAMIENTO VISTA DISPONIBLE
 ###################################################################
 
-class CalcularPagoTest(unittest.TestCase):
+class CalcularPagoTest(TestCase):
 	
 	def setUp(self):
 		'Se crean objetos tipo para los equemas correspondientes'
-		Tarifa.objects.create(nombre="Por hora",   tarifa = 12, granularidad = "hrs")
-		Tarifa.objects.create(nombre="Por minuto", tarifa = 12, granularidad = "min")
- 	
+		#Taifas
+		Tarifa.objects.create(nombre="PruebaHoras",   tarifa = 12, granularidad = "hrs")
+		Tarifa.objects.create(nombre="PruebaMinutos", tarifa = 12, granularidad = "min")
+		#Estacionamiento
+		Estacionamiento.objects.create(Propietario="OctAcorde", Nombre="PruebaPago", \
+									   Direccion = "Sartenejas", Rif = "V-229007500",\
+									   Apertura = datetime.time(hour = 6, minute = 0),
+									   Cierre   = datetime.time(hour = 18, minute = 0))
+	
 	###################################################################
 	#                       PAGO POR HORA
 	###################################################################
 	
+	#Frontera
 	def test_pago_por_Hora_1horaJusta(self):
 		'Se calcula el pago de 1 hora exacta.'
- 		
-		tarifaPorHora = Tarifa.objects.get(nombre="Por hora")
+				
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
 		horaIn  = datetime.time(hour = 6, minute = 0)
 		horaOut = datetime.time(hour = 7, minute = 0)
- 		
+				
 		self.assertEqual(calculoPrecio(horaIn,horaOut,tarifaPorHora), 12)
 	
-# 	#Normal
-# 	def test_pago_por_Hora_2horas(self):
-# 	
-# 		horaIn  = datetime.time(hour = 6, minute = 30)
-# 		horaOut = datetime.time(hour = 8, minute = 30)
-# 	
-# 		tarifa = 12
-# 		self.assertEqual(pagoPorHora(horaIn, horaOut, tarifa),2*12)
-# 	
-# 	#Frontera
-# 	def test_pago_por_Hora_1h1min(self):
-# 	
-# 		horaIn  = datetime.time(hour = 6, minute = 0)
-# 		horaOut = datetime.time(hour = 7, minute = 1)
-# 	
-# 		tarifa = 12
-# 		self.assertEqual(pagoPorHora(horaIn, horaOut, tarifa) 12*2)
-# 	
-# 	#malicia
-# 	def test_pago_por_Hora_59min(self):
-# 	
-# 		horaIn  = datetime.time(hour = 6, minute = 0)
-# 		horaOut = datetime.time(hour = 6, minute = 59)
-# 	
-# 		tarifa = 12
-# 		self.assertEqual(pagoPorHora(horaIn, horaOut, tarifa), 12)
-# 	
-# 	def test_pago_por_hora_MaximasHoras(self):
-# 		
-# 		#Suponiendo que se pueden obtener las horas de apertura y #cierre de un estacionamiento.
-# 	
-# 		horaIn  = estacionamiento.Apertura
-# 		horaOut = estacionamiento.Cierre
-# 	
-# 		tarifa = 12
-# 	
-# 		self.assertEqual(pagoPorHora(horaIn, horaOut, tarifa), (horaOut - horaIn)*12)
-# 	
-# 	#Inseguros
-# 	def test_pago_por_hora_Max24Horas(self):
-# 		
-# 		horaIn  = datetime.time(hour = 6, minute = 0)
-# 		horaOut = datetime.time(hour = 6, minute = 0)
-# 	
-# 		self.assertEqual(pagoPorHora(hotaIni, horaOut, tarifa), 24*12)
-# 
-# 	
-# 	
+	#Normal
+	def test_pago_por_Hora_2horas(self):
+		'Se calcula el pago de dos horas, inciciando en horas y media'
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = datetime.time(hour = 6, minute = 30)
+		horaOut = datetime.time(hour = 8, minute = 30)
+
+		self.assertEqual(calculoPrecio(horaIn,horaOut,tarifaPorHora),2*12)
+
+	#Frontera
+	def test_pago_por_Hora_1h1min(self):
+		"Se calcula el pago de 1 hora con 1 minuto"
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 7, minute = 1)
+
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), 12*2)
+
+# 	malicia
+	def test_pago_por_Hora_59min(self):
+		'Se calcula el pago por 59 minutos'
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = datetime.time(hour = 6, minute = 0)
+		horaOut = datetime.time(hour = 6, minute = 59)
+	
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), 12)
+
+	#Frontera
+	def test_pago_por_hora_MaximasHoras(self):
+		'Prueba con las horas maximas de apertura y cierre de un estacionamiento de 12 horas.'
+		estacionamientoPrueba =  Estacionamiento.objects.get(Nombre="PruebaPago")
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		horaIn  = estacionamientoPrueba.Apertura
+		horaOut = estacionamientoPrueba.Cierre
+	
+	
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), 12*12)
+	
+	#Frontera
+	def test_pago_por_hora_Max24Horas(self):
+		'Prueba con el maximo tiempo de reserva en un dia'
+		horaIn  = datetime.time(hour = 0, minute = 0)
+		horaOut = datetime.time(hour = 23, minute = 59)
+		tarifaPorHora = Tarifa.objects.get(nombre="PruebaHoras")
+		self.assertEqual(calculoPrecio(horaIn, horaOut, tarifaPorHora), 24*12)

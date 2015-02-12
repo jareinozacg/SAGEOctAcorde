@@ -69,7 +69,10 @@ def calculoPrecio(hin, hout, tarifa):
 	tiempoTotal = fchfinal - fchcomienzo
 	
 	if(tarifa.granularidad == "hrs"):
-		return tiempoTotal.seconds // 3600 * tarifa.tarifa
+		pago = tiempoTotal.seconds // 3600 * tarifa.tarifa
+		if tiempoTotal.seconds % 3600 != 0:
+			pago+= tarifa.tarifa
+		return pago
 	else:
 		return tiempoTotal.seconds // 60 * tarifa.tarifa
 
