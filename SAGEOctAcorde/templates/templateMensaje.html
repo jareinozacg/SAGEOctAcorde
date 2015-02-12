@@ -106,7 +106,6 @@
       	{% else %}
        		Reserva posible!<br>
 			El monto a pagar es de: {{mensaje}} Bs.
-		{% endif %}
 			
       <hr>
       <button class="btn btn-primary" onclick=pagoRealizado()>
@@ -114,8 +113,10 @@
       </button>
       <button class="btn btn-primary" onclick=pagoCancelado()>
       Cancelar
-      </button>            
-    </div><div class="col-md-4">
+      </button>
+      {% endif %}            
+    </div>
+    <div class="col-md-4">
 
     
           
