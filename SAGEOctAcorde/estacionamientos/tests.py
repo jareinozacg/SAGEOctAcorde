@@ -553,20 +553,20 @@ class SimpleFormTestCase(TestCase):
 		self.assertEqual(x, (False, 'El horario de inicio de reserva debe estar en un horario válido'))
 
 
-#===============================================================================
-# PRUEBAS UNITARIAS DE FUNCION puedeReservarALas
-#===============================================================================
-
-#===============================================================================
-# ESTACIONAMIENTO CON 1 PUESTO
-#===============================================================================
+#==============================================================================
+#                  PRUEBAS UNITARIAS DE FUNCION puedeReservarALas             #
+#==============================================================================
+#==============================================================================
+#                         ESTACIONAMIENTOS 1 PUESTO                           #
+#==============================================================================
 		
 	def testEstacionamientoVacioReservaMinima(self):
 		'Esquina: Reserva de 1 min en estacionamiento vacio'
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("15:01")
-		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, []))
+		puestosOcupados = []
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad,puestosOcupados))
 		
 	def testEstacionamientoVacio(self):
 		'Esquina: Reserva de 30 min en estacionamiento vacio'
@@ -577,7 +577,7 @@ class SimpleFormTestCase(TestCase):
 		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReservar30MinEn30MinReservados(self): 
-		'Esquina: Reserva en una hora previamente ocupada'
+		'Esquina: Reserva en un lugar previamente ocupada'
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("15:30")
@@ -586,7 +586,6 @@ class SimpleFormTestCase(TestCase):
 	
 	def testReservar30MinEnHoraMayorALaReservada(self): 
 		'Frontera: Reserva media hora en otra previamente ocupada'
-		capacidad = 1
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:30")
 		horaFin = timeDesdeCadena("16:00")
@@ -618,8 +617,7 @@ class SimpleFormTestCase(TestCase):
 		horaFin = timeDesdeCadena("15:01")
 		puestosOcupados = [("15:00", "15:30")] 
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
-		
-	
+			
 	def testReservar31MinSolapandoReserva30MinIzq(self):
 		'''Frontera: Reserva 31 min que solapa una reserva de 30 min y 
 		sobresale por la izquierda'''
@@ -628,8 +626,7 @@ class SimpleFormTestCase(TestCase):
 		horaFin = timeDesdeCadena("15:30")
 		puestosOcupados = [("15:00", "15:30")]
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
-		
-	
+			
 	def testReservar31MinSolapandoReserva30MinDere(self):
 		'''Frontera: Reserva 31 min que solapa una reserva de 30 min y 
 		sobresale por la derecha'''
@@ -638,8 +635,7 @@ class SimpleFormTestCase(TestCase):
 		horaFin = timeDesdeCadena("15:31")
 		puestosOcupados = [("15:00", "15:30")] 
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
-		
-	
+			
 	def testReservar32MinSolapandoReserva30MinAmbos(self):
 		'''Frontera: Reserva 32 min que solapa una reserva de 30 min y 
 		sobresale por ambos lados por 1 min'''
@@ -648,8 +644,7 @@ class SimpleFormTestCase(TestCase):
 		horaFin = timeDesdeCadena("15:31")
 		puestosOcupados = [("15:00", "15:30")] 
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
-		
-		
+				
 	def testReserva28MinEntreDosReservasDe30NoBorde(self): 
 		'''Normal: Reserva 28 min entre dos reservas de 30 min , sin tocar sus bordes por 1 min'''
 		capacidad = 1
@@ -657,8 +652,7 @@ class SimpleFormTestCase(TestCase):
 		horaFin = timeDesdeCadena("15:59")
 		puestosOcupados = [("15:00", "15:30"), ("16:00", "16:30")] 
 		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
-		
-		
+				
 	def testReserva29MinEntreDosReservasDe30BordeIzqui(self): 
 		'''Frontera: Reserva 29 min entre dos reservas de 30 min , toca borde izquierdo'''
 		capacidad = 1
@@ -776,12 +770,11 @@ class SimpleFormTestCase(TestCase):
 		horaFin = timeDesdeCadena("15:30")
 		puestosOcupados = [("15:00", "15:30")] 
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+#==============================================================================
+#                         ESTACIONAMIENTOS 2 PUESTO                           #
+#==============================================================================
 	
-	
-	
-	##########################
-	######### RESERVA 2 puestos
-	#############	
 	def testReservaEstacionamientoVacio(self):
 		'''Normal'''
 		capacidad = 2
