@@ -695,6 +695,42 @@ class SimpleFormTestCase(TestCase):
 		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 
+	def testReserva1HoraEntreDosReservasDe30SolapaIzqui(self): 
+		'''Frontera: Reserva 1 hora superponiendo la reserva del lado izquierdo'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("16:00")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+
+	def testReserva1HoraEntreDosReservasDe30SolapaDere(self): 
+		'''Frontera: Reserva 1 hora superponiendo la reserva del lado derecho'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:30")
+		horaFin = timeDesdeCadena("16:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+
+	def testReserva1Hora30MinEntreDosReservasDe30SolapaAmbos(self): 
+		'''Frontera: Reserva 1 y media hora superponiendo ambas reservas'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("16:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+
+	def testReserva32MinEntreDosReservasDe30SolapaAmbosPor1Min(self): 
+		'''Frontera: Reserva 32 min solapando por 1 min ambas reservaciones'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:29")
+		horaFin = timeDesdeCadena("16:01")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
+		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+
 #===============================================================================
 #
 # 	
