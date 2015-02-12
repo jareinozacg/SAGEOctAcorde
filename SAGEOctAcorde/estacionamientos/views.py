@@ -10,7 +10,6 @@ from estacionamientos.forms import EstacionamientoReserva
 from estacionamientos.models import Estacionamiento, ReservasModel 
 
 
-tablaMarzullo = []
 
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
@@ -90,8 +89,6 @@ def estacionamiento_detail(request, _id):
 
 def estacionamiento_reserva(request, _id):
     
-    global tablaMarzullo
-    
     _id = int(_id)
     # Verificamos que el objeto exista antes de continuar
     try:
@@ -101,7 +98,6 @@ def estacionamiento_reserva(request, _id):
 
     # Si se hace un GET renderizamos los estacionamientos con su formulario
     if request.method == 'GET':
-        tablaMarzullo = []
         form = EstacionamientoReserva()
         return render(request, 'estacionamientoReserva.html', {'form': form, 'estacionamiento': estacion})
 
@@ -122,16 +118,13 @@ def estacionamiento_reserva(request, _id):
                 if not horario_aceptado:
                     return render(request, 'templateMensaje.html', {'color':'red', 'mensaje': m_validado[1]})
 
-                if len(tablaMarzullo) == 0:
-                    #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
-                    reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
-                    #Obtiene los valores que interesan de cada reserva en forma de una tupla
-                    reservas = reservas.values_list('InicioReserva', 'FinalReserva')
-                    tablaMarzullo = crearTablaMarzullo(reservas)
-
+                #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
+                reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
+                #Obtiene los valores que interesan de cada reserva en forma de una tupla
+                reservas = reservas.values_list('InicioReserva', 'FinalReserva')
                            
                 if puedeReservarALas(inicio_reserva, final_reserva,\
-                                estacion.NroPuesto,tablaMarzullo):
+                                estacion.NroPuesto,reservas):
                     
                     reservado = ReservasModel(
                         Estacionamiento = estacion,
@@ -141,11 +134,7 @@ def estacionamiento_reserva(request, _id):
                     )
                     
                     reservado.save() # Agrega la nueva reserva a la base de datos
-                    
-                    #Incorporamos la reserva aceptada
-                    tablaMarzullo.append((inicio_reserva, -1))
-                    tablaMarzullo.append((final_reserva ,  1))
-                    
+                                        
                     return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
                 
                 return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})

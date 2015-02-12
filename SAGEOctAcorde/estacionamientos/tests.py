@@ -7,7 +7,6 @@ import datetime
 from estacionamientos.controller import *
 from estacionamientos.forms import *
 from estacionamientos.forms import *
-from estacionamientos.views import tablaMarzullo
 from estacionamientos.models import Estacionamiento
 
 
@@ -574,8 +573,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("15:30")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 	
 	def testReservar30MinEnHoraMayorALaReservada(self): 
 		'Frontera: Reserva media hora en otra previamente ocupada'
@@ -583,8 +581,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:30")
 		horaFin = timeDesdeCadena("16:00")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 	
 	def testReservar30MinEnHoraColisionaConReservada1MinIzqui(self):
 		'''Frontera: Reserva media hora que colisiona por la izquierda en \
@@ -593,8 +590,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:29")
 		horaFin = timeDesdeCadena("15:59")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
 	def testReservar30MinEnHoraMenorALaReservada(self): 
 		'Esquina: Reserva 30 min en otra previamente ocupada'
@@ -602,8 +598,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("14:30")
 		horaFin = timeDesdeCadena("15:00")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 	
 	def testReservar30MinEnHoraColisionaConReservada1MinDere(self):
 		'''Frontera: Reserva media hora que colisiona por la derecha en \
@@ -612,8 +607,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("14:31")
 		horaFin = timeDesdeCadena("15:01")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
 	
 	def testReservar31MinSolapandoReserva30MinIzq(self):
@@ -623,8 +617,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("14:59")
 		horaFin = timeDesdeCadena("15:30")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
 	
 	def testReservar31MinSolapandoReserva30MinDere(self):
@@ -634,8 +627,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("15:31")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
 	
 	def testReservar32MinSolapandoReserva30MinAmbos(self):
@@ -645,8 +637,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("14:49")
 		horaFin = timeDesdeCadena("15:31")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
 		
 	def testReserva28MinEntreDosReservasDe30NoBorde(self): 
@@ -655,8 +646,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:31")
 		horaFin = timeDesdeCadena("15:59")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
 		
 	def testReserva29MinEntreDosReservasDe30BordeIzqui(self): 
@@ -665,8 +655,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:30")
 		horaFin = timeDesdeCadena("15:59")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva29MinEntreDosReservasDe30BordeDere(self): 
 		'''Frontera: Reserva 29 min entre dos reservas de 30 min , toca borde derecho'''
@@ -674,8 +663,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:31")
 		horaFin = timeDesdeCadena("16:00")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva30MinEntreDosReservasDe30Bordes(self): 
 		'''Frontera: Reserva 30 min entre dos reservas de 30 min , toca ambos bordes'''
@@ -683,8 +671,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:30")
 		horaFin = timeDesdeCadena("16:00")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva30MinEntreDosReservasDe30InterIzqui(self): 
 		'''Frontera: Reserva 30 min entre dos reservas de 30 min , 
@@ -694,8 +681,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:29")
 		horaFin = timeDesdeCadena("15:59")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva30MinEntreDosReservasDe30InterDere(self): 
 		'''Frontera: Reserva 30 min entre dos reservas de 30 min , 
@@ -705,8 +691,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:31")
 		horaFin = timeDesdeCadena("16:01")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva30MinEntreDosReservasDe30SuperponeIzquie(self): 
 		'''Frontera: Reserva 30 min superponiendo la reserva del lado izquierdo
@@ -715,8 +700,7 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("15:30")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva30MinEntreDosReservasDe30SuperponeDere(self): 
 		'''Frontera: Reserva 30 min superponiendo la reserva del lado derecho
@@ -725,44 +709,64 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("16:00")
 		horaFin = timeDesdeCadena("16:30")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva1HoraEntreDosReservasDe30SolapaIzqui(self): 
-		'''Frontera: Reserva 1 hora superponiendo la reserva del lado izquierdo'''
+		'''Esquina: Reserva 1 hora superponiendo la reserva del lado izquierdo'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("16:00")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva1HoraEntreDosReservasDe30SolapaDere(self): 
-		'''Frontera: Reserva 1 hora superponiendo la reserva del lado derecho'''
+		'''Esquina: Reserva 1 hora superponiendo la reserva del lado derecho'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:30")
 		horaFin = timeDesdeCadena("16:30")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva1Hora30MinEntreDosReservasDe30SolapaAmbos(self): 
-		'''Frontera: Reserva 1 y media hora superponiendo ambas reservas'''
+		'''Esquina: Reserva 1 y media hora superponiendo ambas reservas'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:00")
 		horaFin = timeDesdeCadena("16:30")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 
 	def testReserva32MinEntreDosReservasDe30SolapaAmbosPor1Min(self): 
-		'''Frontera: Reserva 32 min solapando por 1 min ambas reservaciones'''
+		'''Esquina: Reserva 32 min solapando por 1 min ambas reservaciones'''
 		capacidad = 1
 		horaIni = timeDesdeCadena("15:29")
 		horaFin = timeDesdeCadena("16:01")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30"), ("16:00", "16:30")]) 
-		tablaMarzullo = crearTablaMarzullo(puestosOcupados)
-		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
+
+	def testReserva28MinEntreReservaDe30MinNoBorde(self): 
+		'''Frontera: Reserva 28 min dentro de una reserva ya creada'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:01")
+		horaFin = timeDesdeCadena("15:29")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
+
+	def testReserva29MinEntreReservaDe30MinbordeIzqui(self): 
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la izquierda con el borde élla'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:29")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
+
+	def testReserva29MinEntreReservaDe30MinbordeDere(self): 
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:01")
+		horaFin = timeDesdeCadena("15:30")
+		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
+		
 
 #===============================================================================
 #
