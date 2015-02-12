@@ -60,4 +60,4 @@ class Tarifa(models.Model):
 	granularidad = models.CharField(default = "hrs", max_length = 4, choices = tipo_granularidad, blank = False)
 	
 	def __str__(self):              # __unicode__ on Python 2
-		return str(self.tarifa)
+		return str(self.nombre)

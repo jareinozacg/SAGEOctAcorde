@@ -116,11 +116,13 @@ def validarHorarioReserva(ReservaInicio, ReservaFin, HorarioApertura, HorarioCie
 		return (False, 'El horario de cierre de reserva debe estar en un horario válido')
 	return (True, '')
 
-def calculoPrecio(hin, hout, granularidad):
+def calculoPrecio(hin, hout, tarifa):
 	d = datetime.date(1111, 1, 11)
 	fchcomienzo = datetime.datetime.combine(d, hin)
 	fchfinal = datetime.datetime.combine(d, hout)
-	tarifa = Tarifa.objects.get()
 	tiempoTotal = fchfinal - fchcomienzo
-	return granularidad
+	if(tarifa.granularidad == "hrs"):
+		return tiempoTotal.seconds // 3600 * tarifa.tarifa
+	else:
+		return tiempoTotal.seconds // 60 * tarifa.tarifa
 
