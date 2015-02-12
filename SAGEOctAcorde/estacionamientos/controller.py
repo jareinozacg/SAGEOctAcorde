@@ -3,6 +3,11 @@
 # Archivo con funciones de control para SAGE
 import functools
 import datetime
+from datetime import timedelta, date
+from estacionamientos.models import Tarifa, Estacionamiento
+
+# Las Tuplas de cada puesto deben tener los horarios de inicio y de cierre para que
+# pueda funcionar [(7:00,7:00), (19:00,19:00)]
 
 
 def validarHorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
@@ -20,9 +25,9 @@ def validarHorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, final
 	if inicioReservaEst > finalEst:
 		return (False, 'El horario de comienzo de reserva debe ser menor al horario de cierre del estacionamiento')
 	if finalReservaEst < aperturaEst:
-		return (False, 'El horario de apertura del estacionamiento debe ser menor al horario de finalización de las reservas')
+		return (False, 'El horario de apertura del estacionamiento debe ser menor al horario de finalizaciÃ³n de las reservas')
 	if finalReservaEst > finalEst:
-		return (False, 'El horario de cierre del estacionamiento debe ser mayor o igual al horario de finalización de las reservas')
+		return (False, 'El horario de cierre del estacionamiento debe ser mayor o igual al horario de finalizaciÃ³n de las reservas')
 	
 	return (True, '')
 
@@ -36,12 +41,11 @@ def validarHorarioReserva(inicioReserva, finalReserva, aperturaReservaEst, cierr
 	if finalReserva.hour - inicioReserva.hour < 1:
 		return (False, 'El tiempo de reserva debe ser al menos de 1 hora')
 	if finalReserva > cierreReservaEst:
-		return (False, 'El horario de cierre de reserva debe estar en un horario válido')
+		return (False, 'El horario de cierre de reserva debe estar en un horario vÃ¡lido')
 	if inicioReserva < aperturaReservaEst:
-		return (False, 'El horario de inicio de reserva debe estar en un horario válido')
+		return (False, 'El horario de inicio de reserva debe estar en un horario vÃ¡lido')
 	
 	return (True, '')
-
 
 def compararTuplasMarzullo(tupla1, tupla2):
 	'Si tupla1 > tupla2 retorna 1; sino -1'
@@ -56,7 +60,7 @@ def compararTuplasMarzullo(tupla1, tupla2):
 def interseccion(A_inicio,A_final,B_inicio,B_final):
 	''' 
 	    Funcion que dado dos intervalos (a1,b1),(a2,b2).
-	    Indica si existe interseccion entre éllos.
+	    Indica si existe interseccion entre Ã©llos.
     '''
 	inicioMasLargo = max(A_inicio, B_inicio)
 	finalMasCorto  = min(A_final, B_final)
@@ -113,3 +117,10 @@ def crearTablaMarzullo(reservas):
 
 	return listaTuplas
 
+def calculoPrecio(hin, hout, granularidad):
+	d = datetime.date(1111, 1, 11)
+	fchcomienzo = datetime.datetime.combine(d, hin)
+	fchfinal = datetime.datetime.combine(d, hout)
+	tarifa = Tarifa.objects.get()
+	tiempoTotal = fchfinal - fchcomienzo
+	return granularidad

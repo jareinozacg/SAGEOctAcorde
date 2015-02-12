@@ -4,10 +4,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 
 from estacionamientos.controller import *
-from estacionamientos.forms import EstacionamientoExtendedForm
-from estacionamientos.forms import EstacionamientoForm
-from estacionamientos.forms import EstacionamientoReserva
-from estacionamientos.models import Estacionamiento, ReservasModel 
+from estacionamientos.forms      import EstacionamientoExtendedForm
+from estacionamientos.forms      import EstacionamientoForm
+from estacionamientos.forms      import EstacionamientoReserva
+from estacionamientos.models     import Estacionamiento, ReservasModel 
 
 
 tablaMarzullo = []
@@ -132,23 +132,20 @@ def estacionamiento_reserva(request, _id):
                            
                 if puedeReservarALas(inicio_reserva, final_reserva,\
                                 estacion.NroPuesto,tablaMarzullo):
-                    
-                    reservado = ReservasModel(
-                        Estacionamiento = estacion,
-                        InicioReserva = inicio_reserva,
-                        Puesto = -1,
-                        FinalReserva = final_reserva
-                    )
-                    
-                    reservado.save() # Agrega la nueva reserva a la base de datos
-                    
-                    #Incorporamos la reserva aceptada
-                    tablaMarzullo.append((inicio_reserva, -1))
-                    tablaMarzullo.append((final_reserva ,  1))
-                    
-                    return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
-                
-                return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
+                    """
+                    reservar(inicio_reserva, final_reserva, listaReserva)
+                    reservaFinal = ReservasModel(
+                                        Estacionamiento = estacion,
+                                        Puesto = x[0],
+                                        InicioReserva = inicio_reserva,
+                                        FinalReserva = final_reserva
+                                    )
+                    reservaFinal.save()"""
+                    string = str(calculoPrecio(inicio_reserva, final_reserva, estacion.Tarifa.granularidad))
+                    return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':string},)
+                else:
+                    return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
+
     else:
         form = EstacionamientoReserva()
 
