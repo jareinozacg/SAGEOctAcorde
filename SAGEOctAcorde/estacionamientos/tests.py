@@ -766,7 +766,12 @@ class SimpleFormTestCase(TestCase):
 		horaFin = timeDesdeCadena("15:30")
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
-		
+	
+	
+	
+	##########################
+	######### RESERVA 2 puestos
+	#############	
 	def testReservaEstacionamientoVacio(self):
 		'''Normal'''
 		capacidad = 2
@@ -775,7 +780,7 @@ class SimpleFormTestCase(TestCase):
 		puestosOcupados = []
 		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
-	def testReservaPuestoLibre(self):
+	def testReservaVariosPuestoLibre(self):
 		'''Normal'''
 		capacidad = 2
 		horaIni = timeDesdeCadena("8:00")
@@ -789,34 +794,165 @@ class SimpleFormTestCase(TestCase):
 		horaIni = timeDesdeCadena("8:00")
 		horaFin = timeDesdeCadena("9:00")
 		puestosOcupados = [ ("8:00","9:00"), \
-							("8:00","9:00")  ]
+							("8:00","10:00")  ]
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 	
+	def testReservaMaximaOcupacionIntersectado(self):
+		'''Frontera'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("7:00")
+		horaFin = timeDesdeCadena("8:01")
+		puestosOcupados = [ ("8:00","9:00"), \
+							("7:00","10:00")  ]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testReservaMaximaOcupacionIntersectado2(self):
+		'''Frontera'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("8:59")
+		horaFin = timeDesdeCadena("10:00")
+		puestosOcupados = [ ("8:00","9:00"), \
+							("7:00","10:00")  ]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
 	def testReservaMaximaOcupacionContenido(self):
 		'''Esquina'''
 		capacidad = 2
 		horaIni = timeDesdeCadena("8:01")
 		horaFin = timeDesdeCadena("8:59")
 		puestosOcupados = [ ("8:00","9:00"), \
-							("8:00","9:00")  ]	
+							("7:00","10:00")  ]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testReservaMaximaOcupacionAfuera(self):
+		'''Esquina'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("7:59")
+		horaFin = timeDesdeCadena("9:01")
+		puestosOcupados = [ ("8:00","9:00"), \
+							("7:00","10:00")  ]
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 	
-	def testReservaConCupoJusto(self):
-		'''Frontera'''
+	def testReservaConCupo1Hora(self):
+		'''Frontera: Reserva 1 hora posible'''
 		capacidad = 2
-		horaIni = timeDesdeCadena("8:00")
-		horaFin = timeDesdeCadena("10:00")
-		puestosOcupados = [ ("8:00","10:00"), \
-							("7:00","08:00"),("10:00","12:00")  ]
+		horaIni = timeDesdeCadena("08:00")
+		horaFin = timeDesdeCadena("09:00")
+		puestosOcupados = [("7:00","08:00"),              ("09:00","12:00"),\
+										   ("8:00","09:00")                 ]
 		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 	
-	def testReservaConCupoJusto1Minuto(self):
+	def testReservaConCupo1Minuto(self):
+		'''Caso Esquina: Minimo de reserva 1 minuto'''
 		capacidad = 2
 		horaIni = timeDesdeCadena("08:02")
 		horaFin = timeDesdeCadena("08:03")
-		puestosOcupados = [ ("08:00","10:00"),                   \
-							("07:00","08:02"),("08:03","09:00")  ]
+		puestosOcupados = [("07:00","08:02"),("08:03","10:00"), \
+						   ("07:00"         ,         "10:00")  ]
 		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testReserva1MinutoInicioDia(self):
+		'''Caso Malicia'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("00:00")
+		horaFin = timeDesdeCadena("00:01")
+		puestosOcupados = [ ("00:01","23:59"),\
+							("00:00","23:59") ]      		
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+	
+	def testReserva1MinutoInicioDiaRechazado(self):
+		'''Caso Malicia'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("00:00")
+		horaFin = timeDesdeCadena("00:01")
+		puestosOcupados =  [("00:00","23:59")]*capacidad
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))	
+		
+	def testReserva1MinutoFinalDia(self):
+		'''Caso Malicia'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("23:58")
+		horaFin = timeDesdeCadena("23:59")
+		puestosOcupados = [ ("00:00","23:58"),\
+							("00:00","23:59") ]      		
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testReserva1MinutoFinalDiaRechazado(self):
+		'''Caso Malicia'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("23:58")
+		horaFin = timeDesdeCadena("23:59")
+		puestosOcupados = [ ("00:00","23:59")]*capacidad     		
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+	
+	def testReservaSolapamientoExtremoIzquierdo(self):
+		'''Caso Frontera: Solapamiento izquierdo intervalo max ocupacion'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("07:59")
+		horaFin = timeDesdeCadena("09:00")
+		puestosOcupados =  [("07:00","08:00"),("09:00","10:00"),\
+							("07:00"         ,         "10:00") ]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+	
+	def testReservaSolapamientoExtremoDerecho(self):
+		'''Caso frontera: Solapamiento derecho invervalo max ocupacion'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("08:00")
+		horaFin = timeDesdeCadena("09:01")
+		puestosOcupados =  [("07:00","08:00"),("09:00","10:00"),\
+							("07:00"           ,       "10:00")]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testReservaSolapamientoDosExtremos(self):
+		'''Caso Esquina: Solapamiento derecho e izquierdo invervalo max.'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("07:59")
+		horaFin = timeDesdeCadena("09:01")
+		puestosOcupados =  [("07:00","08:00"),("09:00","10:00"),\
+							("07:00","08:00"),("09:00","10:00") ]                   
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+	
+	def testPuestosOcupadosSinSolapamiento(self):
+		''' 
+		Prueba Frontera ( Caso interesante). 
+		Es necesario un movimiento de reservas(o puestos) del puesto 2 al puesto 1
+		'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("07:00")
+		horaFin = timeDesdeCadena("09:00")
+		puestosOcupados =  [("07:00","08:00"),               \
+							                ("08:00","09:00")]
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testPuestosOcupadosUnSolapamiento(self):
+		'''
+		Prueba Esquina ( Caso interesante)
+		No es posible un movimiento de reservas(o puestos)
+		'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("07:00")
+		horaFin = timeDesdeCadena("09:00")
+		puestosOcupados =  [("07:00","08:00"),               \
+							                ("07:59","09:00")]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testPuestosOcupadosUnSolapamiento2(self):
+		'''Prueba Malicia ( Caso interesante) '''
+		capacidad = 2
+		horaIni = timeDesdeCadena("07:00")
+		horaFin = timeDesdeCadena("10:00")
+		puestosOcupados =  [("07:00","08:00")       ,       ("09:00","10:00"),\
+							                ("8:00","09:01")                 ]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testPuestosOcupadosVariosSolapamientos(self):
+		'''Prueba Malicia ( Caso interesante) '''
+		capacidad = 2
+		horaIni = timeDesdeCadena("07:00")
+		horaFin = timeDesdeCadena("10:00")
+		puestosOcupados =  [("07:00","08:00")       ,       ("09:00","10:00"),\
+							                ("7:59","09:01")                 ]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))   
 #===============================================================================
 #
 # 	
@@ -828,57 +964,6 @@ class SimpleFormTestCase(TestCase):
 # 		estacionamiento = Estacionamiento(capacidad,reservas)		
 # 		self.assertEqual(estacionamiento.reservar(*reserva),False)
 # 		
-# 	def testReserva1HoraEntreCompletaReserva(self): # Esquina (Manuel) Linea 74
-# 		capacidad = 10
-# 		reservas  = [(6,10),(11,18)]*capacidad
-# 		reserva = (10,11)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		assert estacionamiento.reservar(*reserva)
-# 		
-# 	
-# 	def testReserva1HoraAlInicioEntreCompletaReserva(self): #Esquina (Manuel) Linea 83 
-# 		capacidad = 10
-# 		reservas  = [(7,18)]*capacidad
-# 		reserva = (6,7)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		assert estacionamiento.reservar(*reserva)
-# 	
-# 	def testReserva1HoraAlFinalEntreCompletaReserva(self): #Esquina(Manuel) Linea 91
-# 		capacidad = 10
-# 		reservas  = [(6,17)]*capacidad
-# 		reserva = (17,18)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		assert estacionamiento.reservar(*reserva)
-# 	
-# 	def testReserva1HoraInicioConCompletaReserva(self): # Esquina (Manuel) Linea 99
-# 		capacidad = 10
-# 		reservas  = [(6,18)]*capacidad
-# 		reserva = (6,7)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
-# 	
-# 	def testReserva1HoraFinalConCompletaReserva(self): #Esquina (Manuel) Linea 107
-# 		capacidad = 10
-# 		reservas  = [(6,18)]*capacidad
-# 		reserva = (17,18)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
-# 	
-# 	
-# 	def testReserva1HoraDespuesSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 115
-# 		capacidad = 10
-# 		reservas  = [(6,7),(7,8)]*capacidad
-# 		reserva = (8,9)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		assert estacionamiento.reservar(*reserva)
-# 	
-# 	
 # 	def testReserva1HoraAntesSobreposicionReservas(self): #Esquina maliciosa (Manuel)  Linea 124
 # 		capacidad = 10
 # 		reservas  = [(7,8),(8,9)]*capacidad
@@ -929,53 +1014,7 @@ class SimpleFormTestCase(TestCase):
 # 	def testReservacionInvalida_HoraEntradaMayor(self): #Frontera (Daniel) Buena la idea pero mal horario
 # 		pass
 # 
-# 	def testReservaSinCupoExtremosIguales(self): #Esquina (Chino) Linea 27
-# 		capacidad = 1
-# 		reservas  = [(8,10)]*capacidad
-# 		reserva = (8,10)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
 # 	
-# 	def testReservaSinCupoExtremosDiferentes(self): # Esquina (Chino) Linea 33
-# 		capacidad = 1
-# 		reservas  = [(8,12)]*capacidad
-# 		reserva = (9,13)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
-# 		
-# 	def testReservaConCupo(self): #Esquina (Chino) Linea 39
-# 		capacidad = 1
-# 		reservas  = [(8,12),(14,17)]*capacidad
-# 		reserva = (12,14)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		assert estacionamiento.reservar(*reserva)
-# 		
-# 	def testReservaConCupoDosPuestos(self): # Esquina (Chino) Linea 45 , modificar segundo horario
-# 		capacidad = 2
-# 		reservas  = [(8,12),(14,17)]*capacidad
-# 		reserva = (12,14)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		assert estacionamiento.reservar(*reserva)
-# 	
-# 	def testReservaSinCupoDosExtremos(self): #Esquina (Chino) Linea 52 (se puede dividir en dos pruebas por cada extremo)
-# 		capacidad = 1
-# 		reservas  = [(8,12),(14,17)]*capacidad
-# 		reserva = (11,15)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
-# 	
-# 	def testReservaSinCupoDosExtremosDosPuestos(self): #Esquina (Chino) Linea 58 (se puede dividir , arreglar segundo horario)
-# 		capacidad = 1
-# 		reservas  = [(8,12),(14,17)]*capacidad
-# 		reserva = (12,15)
-# 		
-# 		estacionamiento = Estacionamiento(capacidad,reservas)		
-# 		self.assertEqual(estacionamiento.reservar(*reserva),False)
 # 		
 # 	def testPuestosLlenos(self): #Esquinas maliciosas  (Chino) Linea 65 (dividir tal vez?) cuestionable...
 # 		capacidad = 3
