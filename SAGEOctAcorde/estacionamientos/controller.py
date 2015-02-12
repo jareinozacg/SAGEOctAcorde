@@ -5,6 +5,7 @@ import functools
 import datetime
 from _decimal import Decimal
 
+
 def validarHorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
 	'''
 		Chequea que el horario de estacionamiento de apertura y el horario de apertura 
@@ -42,6 +43,26 @@ def validarHorarioReserva(inicioReserva, finalReserva, aperturaReservaEst, cierr
 	
 	return (True, '')
 
+
+def compararTuplasMarzullo(tupla1, tupla2):
+	'Si tupla1 > tupla2 retorna 1; sino -1'
+	
+	if tupla1[0] > tupla2[0]: return 1
+	if tupla1[0] < tupla2[0]: return -1
+
+	if tupla1[1] >= tupla2[1]: return -1
+
+	return 1
+
+def interseccion(A_inicio,A_final,B_inicio,B_final):
+	''' 
+	    Funcion que dado dos intervalos (a1,b1),(a2,b2).
+	    Indica si existe interseccion entre éllos.
+    '''
+	inicioMasLargo = max(A_inicio, B_inicio)
+	finalMasCorto  = min(A_final, B_final)
+	return inicioMasLargo < finalMasCorto
+
 def calculoPrecio(hin, hout, tarifa):
 	d = datetime.date(1111, 1, 11)
 	fchcomienzo = datetime.datetime.combine(d, hin)
@@ -57,41 +78,10 @@ def calculoPrecio(hin, hout, tarifa):
 		pago = (tiempoTotal.seconds // 60) * (tarifa.tarifa / 60)
 		return pago
 
-def interseccion(A_inicio,A_final,B_inicio,B_final):
-	''' 
-	    Funcion que dado dos intervalos (a1,b1),(a2,b2).
-	    Indica si existe interseccion entre éllos.
-    '''
-	inicioMasLargo = max(A_inicio, B_inicio)
-	finalMasCorto  = min(A_final, B_final)
-	return inicioMasLargo < finalMasCorto
 
-def crearTablaMarzullo(reservas):
-	''' Funcion que dada una lista de reservaciones, devuelve 
-		la tabla(lista) ordenada asociada al algoritmo de Marzullo'''
-	
-	listaTuplas = []
-	
-	for elemReserva in reservas:
-		listaTuplas.append((elemReserva[0], -1))
-		listaTuplas.append((elemReserva[1],  1))
-
-	return listaTuplas
-
-def compararTuplasMarzullo(tupla1, tupla2):
-	'Si tupla1 > tupla2 retorna 1; sino -1'
-	
-	if tupla1[0] > tupla2[0]: return 1
-	if tupla1[0] < tupla2[0]: return -1
-
-	if tupla1[1] >= tupla2[1]: return -1
-
-	return 1
-
-def puedeReservarALas(horaIni,horaFin,capacidad,reservas):
+def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
 	'Verifica usando Marzullo si una reserva esta disponible'
 	
-	tablaMarzullo = crearTablaMarzullo(reservas)
 	tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
 	
 	best, beststart, bestend, cnt = 0,0,0,0
@@ -125,3 +115,17 @@ def crearTuplasHorasDesdeListaCadena(listaTuplas):
 	
 	return listaHora
 				
+
+
+def crearTablaMarzullo(reservas):
+	''' Funcion que dada una lista de reservaciones, devuelve 
+		la tabla(lista) ordenada asociada al algoritmo de Marzullo'''
+	
+	listaTuplas = []
+	
+	for elemReserva in reservas:
+		listaTuplas.append((elemReserva[0], -1))
+		listaTuplas.append((elemReserva[1],  1))
+
+	return listaTuplas
+

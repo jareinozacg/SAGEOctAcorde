@@ -4,9 +4,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts       import render
 from decimal import Decimal
 from estacionamientos.controller import *
-from estacionamientos.forms import *
-from estacionamientos.models import *
+from estacionamientos.forms      import EstacionamientoExtendedForm,\
+    DefinirTarifa
+from estacionamientos.forms      import EstacionamientoForm
+from estacionamientos.forms      import EstacionamientoReserva
+from estacionamientos.models     import Estacionamiento, ReservasModel 
 
+
+tablaMarzullo = []
 
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
@@ -95,13 +100,14 @@ def estacionamiento_detail(request, _id):
 
 def estacionamiento_reserva(request, _id):
     
+    global tablaMarzullo
+    
     _id = int(_id)
     # Verificamos que el objeto exista antes de continuar
     try:
         estacion = Estacionamiento.objects.get(id = _id)
     except ObjectDoesNotExist:
-        return render(request, '404.html')    
-
+        return render(request, '404.html')
 
     # Si se hace un GET renderizamos los estacionamientos con su formulario
     if request.method == 'GET':
@@ -109,7 +115,6 @@ def estacionamiento_reserva(request, _id):
         context = {'form': form, 
                    'estacionamiento': estacion}
         return render(request, 'estacionamientoReserva.html', context)
-
 
     # Si es un POST estan mandando un request
     if request.method == 'POST':
@@ -125,19 +130,23 @@ def estacionamiento_reserva(request, _id):
                 horario_aceptado = m_validado[0]
                 
                 # Si no es valido devolvemos el request
-
-                if not horario_aceptado:
+                if not m_validado[0]:
                     context = {'color':'red', 
                                'mensaje': m_validado[1]}
                     return render(request, 'templateMensaje.html', context)
+                if not horario_aceptado:
+                    return render(request, 'templateMensaje.html', {'color':'red', 'mensaje': m_validado[1]})
 
-                #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
-                reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
-                #Obtiene los valores que interesan de cada reserva en forma de una tupla
-                reservas = reservas.values_list('InicioReserva', 'FinalReserva')
+                if len(tablaMarzullo) == 0:
+                    #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
+                    reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
+                    #Obtiene los valores que interesan de cada reserva en forma de una tupla
+                    reservas = reservas.values_list('InicioReserva', 'FinalReserva')
+                    tablaMarzullo = crearTablaMarzullo(reservas)
+
                            
                 if puedeReservarALas(inicio_reserva, final_reserva,\
-                                estacion.NroPuesto,reservas):
+                                estacion.NroPuesto,tablaMarzullo):
                     
                     precio = calculoPrecio(inicio_reserva, final_reserva, estacion.Tarifa)
                     context = {'color':'green',
@@ -146,6 +155,7 @@ def estacionamiento_reserva(request, _id):
                     reservado = ReservasModel(
                         Estacionamiento = estacion,
                         InicioReserva = inicio_reserva,
+                        Puesto = -1,
                         FinalReserva = final_reserva
                     )
                     
@@ -157,7 +167,6 @@ def estacionamiento_reserva(request, _id):
                     context = {'color':'red', 
                                'error':'No hay un puesto disponible para ese horario'}
                     return render(request, 'templateMensaje.html', context)
-
     else:
         form = EstacionamientoReserva()
         context = {'form': form, 
