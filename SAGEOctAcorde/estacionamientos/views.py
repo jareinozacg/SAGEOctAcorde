@@ -84,18 +84,6 @@ def estacionamiento_detail(request, _id):
 
     return render(request, 'estacionamiento.html', {'form': form, 'estacionamiento': estacion})
 
-def saludar():
-    print("hola")
-    print("hola")
-    print("hola")
-    print("hola")
-    print("hola")
-    print("hola")
-    print("hola")
-    print("hola")
-    print("hola")
-    print("hola")
-    print("hola")
 
 def estacionamiento_reserva(request, _id):
     
@@ -111,8 +99,7 @@ def estacionamiento_reserva(request, _id):
         form = EstacionamientoReserva()
         return render(request, 'estacionamientoReserva.html', 
                         {'form': form,
-                         "estacionamiento": estacion,
-                         "funcion" : saludar})
+                         "estacionamiento": estacion})
         
     # Si es un POST estan mandando un request
     if request.method == 'POST':
