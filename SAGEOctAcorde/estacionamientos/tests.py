@@ -560,6 +560,14 @@ class SimpleFormTestCase(TestCase):
 #===============================================================================
 # ESTACIONAMIENTO CON 1 PUESTO
 #===============================================================================
+		
+	def testEstacionamientoVacioReservaMinima(self):
+		'Esquina: Reserva de 1 min en estacionamiento vacio'
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:01")
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, []))
+		
 	def testEstacionamientoVacio(self):
 		'Esquina: Reserva de 30 min en estacionamiento vacio'
 		capacidad = 1
@@ -593,7 +601,7 @@ class SimpleFormTestCase(TestCase):
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
 	def testReservar30MinEnHoraMenorALaReservada(self): 
-		'Esquina: Reserva 30 min en otra previamente ocupada'
+		'Esquina: Reserva 30 min en otra posteriormente ocupada'
 		capacidad = 1
 		horaIni = timeDesdeCadena("14:30")
 		horaFin = timeDesdeCadena("15:00")
