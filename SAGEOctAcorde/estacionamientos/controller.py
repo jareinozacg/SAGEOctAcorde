@@ -1,124 +1,115 @@
+# -*- coding: utf-8 -*-
+
 # Archivo con funciones de control para SAGE
+import functools
 import datetime
-from datetime import timedelta, date
-
-# Las Tuplas de cada puesto deben tener los horarios de inicio y de cierre para que
-# pueda funcionar [(7:00,7:00), (19:00,19:00)]
 
 
-# Suponiendo que cada estacionamiento tiene una estructura "matricial" lista de listas
-# donde si m es una matriz, m[i,j] las i corresponden a los puestos y las j corresponden a tuplas
-# con el horario inicio y fin de las reservas
-# [[(horaIn,horaOut),(horaIn,horaOut)],[],....]
-
-# chequeo de horarios de extended
-def HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin):
-
-	if HoraInicio >= HoraFin:
+def validarHorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, finalReservaEst):
+	'''
+		Chequea que el horario de estacionamiento de apertura y el horario de apertura 
+		de las reservas esten correctos.
+		
+	'''
+	if aperturaEst >= finalEst:
 		return (False, 'El horario de apertura debe ser menor al horario de cierre')
-	if ReservaInicio >= ReservaFin:
+	if inicioReservaEst >= finalReservaEst:
 		return (False, 'El horario de inicio de reserva debe ser menor al horario de cierre')
-	if ReservaInicio < HoraInicio:
-		return (False, 'El horario de inicio de reserva debe mayor o igual al horario de apertura del estacionamiento')
-	if ReservaInicio > HoraFin:
+	if inicioReservaEst < aperturaEst:
+		return (False, 'El horario de inicio de reserva debe ser mayor o igual al horario de apertura del estacionamiento')
+	if inicioReservaEst > finalEst:
 		return (False, 'El horario de comienzo de reserva debe ser menor al horario de cierre del estacionamiento')
-	if ReservaFin < HoraInicio:
-		return (False, 'El horario de apertura de estacionamiento debe ser menor al horario de finalización de reservas')
-	if ReservaFin > HoraFin:
-		return (False, 'El horario de cierre de estacionamiento debe ser mayor o igual al horario de finalización de reservas')
+	if finalReservaEst < aperturaEst:
+		return (False, 'El horario de apertura del estacionamiento debe ser menor al horario de finalización de las reservas')
+	if finalReservaEst > finalEst:
+		return (False, 'El horario de cierre del estacionamiento debe ser mayor o igual al horario de finalización de las reservas')
+	
 	return (True, '')
 
-
-# busca un puesta en el estacionamiento
-def buscar(hin, hout, estacionamiento):
-	if not isinstance(estacionamiento, list):
-		return (-1, -1, False)
-	if len(estacionamiento) == 0:
-		return (-1, -1, False)
-	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
-		return (-1, -1, False)
-	for i in range(len(estacionamiento)):
-		posicion = busquedaBin(hin, hout, estacionamiento[i])
-		if posicion[1] == True:
-			return (i, posicion[0], posicion[1])
-	return (-1, -1, False)
-
-def binaria(valor, inicio, fin, lista):
-	if inicio == fin:
-		return inicio
-	centro = (inicio + fin) // 2
-	if lista[centro][0] > valor:
-		return binaria(valor, inicio, centro, lista)
-	if lista[centro][0] < valor:
-		return binaria(valor, centro + 1, fin, lista)
-	return centro
-
-# Busca en una lista ordenada la posicion en la que una nueva tupla
-# puede ser insertado, y ademas devuelve un booleano que dice si la
-# tupla puede ser insertada, es decir que sus valores no solapen alguno
-# ya existente.
-# Precondición: la lista debe tener ya la mayor y menor posible tupla
-def busquedaBin(hin, hout, listaTuplas):
-	# ln = len(listaTuplas)
-	if not isinstance(listaTuplas, list):
-		return (0, False)
-	if len(listaTuplas) == 0:
-		return (0, True)
-	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
-		return (0, False)
-	index = binaria(hin, 0, len(listaTuplas), listaTuplas)
-	if index == 0:
-		index = index + 1
-	if listaTuplas[index][0] >= hout and listaTuplas[index - 1][1] <= hin:
-		return (index, True)
-	else:
-		return (index, False)
-
-# inserta ordenadamente por hora de inicio
-def insertarReserva(hin, hout, puesto, listaReserva):
-	# no verifica precondicion, se supone que se hace buscar antes para ver si se puede agregar
-	if not isinstance(listaReserva, list):
-		return None
-	if len(listaReserva) == 0:
-		return listaReserva
-	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
-		return listaReserva
-	tupla = (hin, hout)
-	listaReserva.insert(puesto, tupla)
-	# estacionamiento[puesto].sort()
-	return listaReserva
-
-def reservar(hin, hout, estacionamiento):
-	if not isinstance(estacionamiento, list):
-		return 1
-	if len(estacionamiento) == 0:
-		return 1
-	if not isinstance(hin, datetime.time) or not isinstance(hout, datetime.time):
-		return 1
-	puesto = buscar(hin, hout, estacionamiento)
-	if puesto[2] != False:
-		estacionamiento[puesto[0]] = insertarReserva(hin, hout, puesto[1], estacionamiento[puesto[0]])
-		return estacionamiento
-	else:
-		return 1
-
-
-def validarHorarioReserva(ReservaInicio, ReservaFin, HorarioApertura, HorarioCierre):
-
-	if ReservaInicio >= ReservaFin:
+def validarHorarioReserva(inicioReserva, finalReserva, aperturaReservaEst, cierreReservaEst):
+	'''
+		Chequea que el horario de la reserva sea correcta considerando el horario de apertura de las reservas
+		del estacionamiento.
+	'''
+	if inicioReserva >= finalReserva:
 		return (False, 'El horario de apertura debe ser menor al horario de cierre')
-	if ReservaFin.hour - ReservaInicio.hour < 1:
+	if finalReserva.hour - inicioReserva.hour < 1:
 		return (False, 'El tiempo de reserva debe ser al menos de 1 hora')
-	if ReservaFin > HorarioCierre:
-		return (False, 'El horario de inicio de reserva debe estar en un horario válido')
-	if ReservaInicio < HorarioApertura:
+	if finalReserva > cierreReservaEst:
 		return (False, 'El horario de cierre de reserva debe estar en un horario válido')
+	if inicioReserva < aperturaReservaEst:
+		return (False, 'El horario de inicio de reserva debe estar en un horario válido')
+	
 	return (True, '')
 
-def calculoPrecio(hin, hout):
-	d = datetime.date(1111, 1, 11)
-	fchcomienzo = datetime.datetime.combine(d, hin)
-	fchfinal = datetime.datetime.combine(d, hout)
-	tiempoTotal = fchfinal - fchcomienzo
-	return tiempoTotal
+
+def compararTuplasMarzullo(tupla1, tupla2):
+	'Si tupla1 > tupla2 retorna 1; sino -1'
+	
+	if tupla1[0] > tupla2[0]: return 1
+	if tupla1[0] < tupla2[0]: return -1
+
+	if tupla1[1] >= tupla2[1]: return -1
+
+	return 1
+
+def interseccion(A_inicio,A_final,B_inicio,B_final):
+	''' 
+	    Funcion que dado dos intervalos (a1,b1),(a2,b2).
+	    Indica si existe interseccion entre éllos.
+    '''
+	inicioMasLargo = max(A_inicio, B_inicio)
+	finalMasCorto  = min(A_final, B_final)
+	return inicioMasLargo < finalMasCorto
+
+
+def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
+	'Verifica usando Marzullo si una reserva esta disponible'
+	
+	tablaMarzullo.sort(key=functools.cmp_to_key(compararTuplasMarzullo))
+	
+	best, beststart, bestend, cnt = 0,0,0,0
+	for i in range(0, len(tablaMarzullo)-1):
+		cnt = cnt - tablaMarzullo[i][1]
+	
+		if cnt >= best:
+			best, beststart  = cnt, tablaMarzullo[i][0]
+			bestend = tablaMarzullo[i + 1][0]
+			
+		if tablaMarzullo[i][0] >= horaFin: return True
+		
+		if (cnt == capacidad) and \
+			interseccion(horaIni, horaFin, beststart, bestend):
+			return False
+		
+	return True
+
+def timeDesdeCadena(timeCad):
+	'Funcion que dado una fecha en formato string, devuelve una instancia de Time'
+	return datetime.datetime.strptime(timeCad, "%H:%M") # "%Y-%m-%d %H:%M" formato para fechas
+
+def crearTuplasHorasDesdeListaCadena(listaTuplas):
+	'''
+	Convierte tuplas de string a time
+	'''
+	listaHora = []
+	
+	for tupla in listaTuplas:
+		listaHora.append( (timeDesdeCadena(tupla[0]),timeDesdeCadena(tupla[1])) )
+	
+	return listaHora
+				
+
+
+def crearTablaMarzullo(reservas):
+	''' Funcion que dada una lista de reservaciones, devuelve 
+		la tabla(lista) ordenada asociada al algoritmo de Marzullo'''
+	
+	listaTuplas = []
+	
+	for elemReserva in reservas:
+		listaTuplas.append((elemReserva[0], -1))
+		listaTuplas.append((elemReserva[1],  1))
+
+	return listaTuplas
 

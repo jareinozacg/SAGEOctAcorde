@@ -80,6 +80,7 @@
       
       <table class="table table-striped">
         <thead>
+          
         </thead>
         <tbody>
 			<tr><td><b><i class="fa fa-car"></i> Nombre del estacionamiento:</b></td></tr>
@@ -128,11 +129,13 @@
       
    
 
+    
     </div>
     <div class="col-md-4">
        
        <table class="table table-striped">
         <thead>
+          
         </thead>
         <tbody>
       {% if estacionamiento.NroPuesto %}
@@ -183,17 +186,12 @@
               <form action="." method="post" class="form form-vertical">
               {% csrf_token %}
               {% for field in form %}
-	             {% if field.label == 'Tarifa' %}
-	              	{{ field }}
-	             {% else %}
-	              
                 <div class="control-group">
                   <div class="controls">
                     <input type="text" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"><p>
                     {{ field.errors }}
                   </div>
                 </div> 
-	          	{% endif %}
               {% endfor %}
                 
                 <div class="control-group">
