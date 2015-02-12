@@ -17,6 +17,7 @@ def estacionamientos_all(request):
     # Si se hace un POST a esta vista implica que se quiere agregar un nuevo
     # estacionamiento
     estacionamientos = Estacionamiento.objects.all()
+    
     if request.method == 'POST':
             # Creamos un formulario con los datos que recibimos
             form = EstacionamientoForm(request.POST)
@@ -135,6 +136,7 @@ def estacionamiento_reserva(request, _id):
                     reservado = ReservasModel(
                         Estacionamiento = estacion,
                         InicioReserva = inicio_reserva,
+                        Puesto = -1,
                         FinalReserva = final_reserva
                     )
                     

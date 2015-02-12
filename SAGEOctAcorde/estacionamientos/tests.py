@@ -3,7 +3,7 @@
 from django.test import Client
 from django.test import TestCase
 import unittest
-from datetime import datetime
+import datetime
 from estacionamientos.controller import *
 from estacionamientos.forms import *
 from estacionamientos.forms import *
@@ -429,12 +429,12 @@ class SimpleFormTestCase(TestCase):
 
 	# malicia
 	def test_CierreReserva_Mayor_HoraCierreEstacionamiento(self):
-		HoraInicio = datetime.time(hour = 12, minute = 0, second = 0)
-		HoraFin = datetime.time(hour = 18, minute = 0, second = 0)
-		ReservaInicio = datetime.time(hour = 17, minute = 0, second = 0)
-		ReservaFin = datetime.time(hour = 20, minute = 0, second = 0)
-		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
-		self.assertEqual(x, (False, 'El horario de cierre de estacionamiento debe ser mayor o igual al horario de finalización de reservas'))
+		horaInicio = datetime.time(hour = 12, minute = 0, second = 0)
+		horaFin = datetime.time(hour = 18, minute = 0, second = 0)
+		reservaInicio = datetime.time(hour = 17, minute = 0, second = 0)
+		reservaFin = datetime.time(hour = 20, minute = 0, second = 0)
+		x = HorarioEstacionamiento(horaInicio, horaFin, reservaInicio, reservaFin)
+		self.assertEqual(x, (False, 'El horario de cierre del estacionamiento debe ser mayor o igual al horario de finalización de las reservas'))
 
 	# malicia
 	def test_CierreReserva_Menos_HoraInicioEstacionamiento(self):
@@ -443,7 +443,7 @@ class SimpleFormTestCase(TestCase):
 		ReservaInicio = datetime.time(hour = 10, minute = 0, second = 0)
 		ReservaFin = datetime.time(hour = 11, minute = 0, second = 0)
 		x = HorarioEstacionamiento(HoraInicio, HoraFin, ReservaInicio, ReservaFin)
-		self.assertEqual(x, (False, 'El horario de inicio de reserva debe mayor o igual al horario de apertura del estacionamiento'))
+		self.assertEqual(x, (False, 'El horario de inicio de reserva debe ser mayor o igual al horario de apertura del estacionamiento'))
 
 
 
@@ -541,7 +541,7 @@ class SimpleFormTestCase(TestCase):
 		HoraApertura = datetime.time(hour = 12, minute = 0, second = 0)
 		HoraCierre = datetime.time(hour = 18, minute = 0, second = 0)
 		x = validarHorarioReserva(ReservaInicio, ReservaFin, HoraApertura, HoraCierre)
-		self.assertEqual(x, (False, 'El horario de inicio de reserva debe estar en un horario válido'))
+		self.assertEqual(x, (False, 'El horario de cierre de reserva debe estar en un horario válido'))
 
 	# caso borde
 	def test_HorarioReservaInvalido_ReservaInicial_Menor_HorarioApertura(self):
@@ -550,7 +550,7 @@ class SimpleFormTestCase(TestCase):
 		HoraApertura = datetime.time(hour = 12, minute = 0, second = 0)
 		HoraCierre = datetime.time(hour = 18, minute = 0, second = 0)
 		x = validarHorarioReserva(ReservaInicio, ReservaFin, HoraApertura, HoraCierre)
-		self.assertEqual(x, (False, 'El horario de cierre de reserva debe estar en un horario válido'))
+		self.assertEqual(x, (False, 'El horario de inicio de reserva debe estar en un horario válido'))
 
 
 	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -604,7 +604,7 @@ class SimpleFormTestCase(TestCase):
 		'''
 		Funcion que dado una fecha en formato string, devuelve el datetime
 		'''
-		return datetime.strptime(hora, "%H:%M") # "%Y-%m-%d %H:%M" formato para fechas
+		return datetime.datetime.strptime(hora, "%H:%M") # "%Y-%m-%d %H:%M" formato para fechas
 	
 	def crearTuplasHoras(self,listaTuplas):
 		'''
@@ -632,7 +632,7 @@ class SimpleFormTestCase(TestCase):
 		# Opcion 1
 		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, tablaMarzullo))
 		# Opcion 2
-		self.assertRaises(AssertionError, puedeReservarALas, horaIni,horaFin,capacidad,tablaMarzullo)
+	#	self.assertRaises(AssertionError, puedeReservarALas, horaIni,horaFin,capacidad,tablaMarzullo)
 		
 	def testReservaDosHorasEnReservaMaxima(self): # Esquina (Manuel) Linea 65
 		capacidad = 10

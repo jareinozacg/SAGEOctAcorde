@@ -90,8 +90,8 @@ def crearTablaMarzullo(reservas):
 	listaTuplas = []
 	
 	for elemReserva in reservas:
-		listaTuplas.append((elemReserva[1], -1))
-		listaTuplas.append((elemReserva[2],  1))
+		listaTuplas.append((elemReserva[0], -1))
+		listaTuplas.append((elemReserva[1],  1))
 
 	return listaTuplas
 
