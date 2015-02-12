@@ -101,10 +101,16 @@
 		</script>
 		
        <div class="col-md-8" style="color:{{color}}; font-weight: 600;"> 
+      	{% if error%}
+      		{{error}}
+      	{% else %}
+       		Reserva posible!<br>
 			El monto a pagar es de: {{mensaje}} Bs.
+		{% endif %}
+			
       <hr>
       <button class="btn btn-primary" onclick=pagoRealizado()>
-      Pagar
+      Reservar
       </button>
       <button class="btn btn-primary" onclick=pagoCancelado()>
       Cancelar

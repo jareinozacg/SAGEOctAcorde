@@ -151,10 +151,21 @@ def estacionamiento_reserva(request, _id):
                     precio = calculoPrecio(inicio_reserva, final_reserva, estacion.Tarifa)
                     context = {'color':'green',
                                'mensaje': precio}
+                    
+                    reservado = ReservasModel(
+                        Estacionamiento = estacion,
+                        InicioReserva = inicio_reserva,
+                        Puesto = -1,
+                        FinalReserva = final_reserva
+                    )
+                    
+                    reservado.save() # Agrega la nueva reserva a la base de datos
+                    
                     return render(request, 'templateMensaje.html', context)
+                
                 else:
                     context = {'color':'red', 
-                               'mensaje':'No hay un puesto disponible para ese horario'}
+                               'error':'No hay un puesto disponible para ese horario'}
                     return render(request, 'templateMensaje.html', context)
     else:
         form = EstacionamientoReserva()
