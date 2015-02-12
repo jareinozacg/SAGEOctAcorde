@@ -51,7 +51,7 @@ class EstacionamientoForm(forms.Form):
 class EstacionamientoExtendedForm(ModelForm):
     Tarifa = forms.ModelChoiceField(
         queryset=Tarifa.objects.all(), 
-        empty_label="Seleccione las tarifas"
+        empty_label="Seleccione tipo de Tarifa"
         )
 
     class Meta:

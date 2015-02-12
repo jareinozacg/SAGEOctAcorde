@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
+from django.shortcuts       import render
 
 from estacionamientos.controller import *
-from estacionamientos.forms      import EstacionamientoExtendedForm
+from estacionamientos.forms      import EstacionamientoExtendedForm,\
+    DefinirTarifa
 from estacionamientos.forms      import EstacionamientoForm
 from estacionamientos.forms      import EstacionamientoReserva
 from estacionamientos.models     import Estacionamiento, ReservasModel 
@@ -66,6 +67,7 @@ def estacionamiento_detail(request, _id):
     if request.method == 'POST':
             # Leemos el formulario
             form = EstacionamientoExtendedForm(request.POST)
+            
             # Si el formulario
             if form.is_valid():
                 hora_in = form.cleaned_data['Apertura']
