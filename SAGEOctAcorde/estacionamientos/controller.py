@@ -63,10 +63,11 @@ def interseccion(A_inicio,A_final,B_inicio,B_final):
 	return inicioMasLargo < finalMasCorto
 
 def calculoPrecio(hin, hout, tarifa):
- 	d = datetime.date(1111, 1, 11)
- 	fchcomienzo = datetime.datetime.combine(d, hin)
- 	fchfinal = datetime.datetime.combine(d, hout)
- 	tiempoTotal = fchfinal - fchcomienzo
+	d = datetime.date(1111, 1, 11)
+	fchcomienzo = datetime.datetime.combine(d, hin)
+	fchfinal = datetime.datetime.combine(d, hout)
+	tiempoTotal = fchfinal - fchcomienzo
+	
 	if(tarifa.granularidad == "hrs"):
 		return tiempoTotal.seconds // 3600 * tarifa.tarifa
 	else:
