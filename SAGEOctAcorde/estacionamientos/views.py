@@ -134,7 +134,7 @@ def estacionamiento_reserva(request, _id):
                     )
                     
                     reservado.save() # Agrega la nueva reserva a la base de datos
-                                        
+                                       
                     return render(request, 'templateMensaje.html', {'color':'green', 'mensaje':'Se realizo la reserva exitosamente'})
                 
                 return render(request, 'templateMensaje.html', {'color':'red', 'mensaje':'No hay un puesto disponible para ese horario'})
