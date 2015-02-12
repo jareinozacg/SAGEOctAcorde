@@ -771,6 +771,40 @@ class SimpleFormTestCase(TestCase):
 		puestosOcupados = [("15:00", "15:30")] 
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 		
+	def testReserva1minSuperponiendoReservaDerecha(self): 
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:01")
+		horaFin = timeDesdeCadena("15:02")
+		puestosOcupados = [("15:00","15:01"),("15:01", "15:02")]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+		
+	def testReserva1minSuperponiendoReservaIzquierda(self): 
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:01")
+		puestosOcupados = [("15:00","15:01"),("15:01", "15:02")]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testReserva2MinSuperponiendoReservasJuntas(self): 
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("15:00")
+		horaFin = timeDesdeCadena("15:02")
+		puestosOcupados = [("15:00","15:01"),("15:01", "15:02")]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+	def testReserva4MinSolapanadoReservasJuntas(self): 
+		'''Frontera: Reserva 29 min dentro de una reserva chocando por la derecha con el borde élla'''
+		capacidad = 1
+		horaIni = timeDesdeCadena("14:59")
+		horaFin = timeDesdeCadena("15:03")
+		puestosOcupados = [("15:00","15:01"),("15:01", "15:02")]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+		
+		
 #==============================================================================
 #                         ESTACIONAMIENTOS 2 PUESTO                           #
 #==============================================================================
