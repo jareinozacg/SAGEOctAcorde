@@ -151,9 +151,9 @@ def estacionamiento_reserva(request, _id):
                                         FinalReserva = final_reserva
                                     )
                     reservaFinal.save()"""
-                    string = calculoPrecio(inicio_reserva, final_reserva, estacion.Tarifa)
+                    precio = calculoPrecio(inicio_reserva, final_reserva, estacion.Tarifa)
                     context = {'color':'green',
-                               'mensaje':string}
+                               'mensaje': precio}
                     return render(request, 'templateMensaje.html', context)
                 else:
                     context = {'color':'red', 
