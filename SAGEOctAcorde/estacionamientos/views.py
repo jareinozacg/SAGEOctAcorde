@@ -2,7 +2,7 @@
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts       import render
-
+from decimal import Decimal
 from estacionamientos.controller import *
 from estacionamientos.forms      import EstacionamientoExtendedForm,\
     DefinirTarifa
@@ -88,8 +88,10 @@ def estacionamiento_detail(request, _id):
                 estacion.Reservas_Cierre = reserva_out
                 estacion.NroPuesto = form.cleaned_data['NroPuesto']
                 
-
+                estacion.Tarifa.tarifa = Decimal(form.cleaned_data['monto'])
                 estacion.save()
+                estacion.Tarifa.save()
+                
     else:
         form = EstacionamientoExtendedForm()
 

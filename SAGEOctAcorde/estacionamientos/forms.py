@@ -54,9 +54,12 @@ class EstacionamientoExtendedForm(ModelForm):
         empty_label="Seleccione tipo de Tarifa"
         )
 
+    monto = forms.DecimalField( max_digits = 10, decimal_places=2,
+                                 label = 'Monto')
+    
     class Meta:
         model = Estacionamiento
-        exclude = ['Propietario','Nombre','Direccion', 'Telefono_1', 'Telefono_2','Telefono_3', 'Email_1','Email_2','Rif']
+        exclude = ['Propietario','Nombre','Direccion', 'Telefono_1', 'Telefono_2','Telefono_3', 'Email_1','Email_2','Rif', 'Tarifa']
     '''
     puestos = forms.IntegerField(min_value = 0, label = 'Número de Puestos')
     tarifa_validator = RegexValidator(
