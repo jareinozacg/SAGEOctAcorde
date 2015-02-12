@@ -767,7 +767,56 @@ class SimpleFormTestCase(TestCase):
 		puestosOcupados = crearTuplasHorasDesdeListaCadena([("15:00", "15:30")]) 
 		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
 		
-
+	def testReservaEstacionamientoVacio(self):
+		'''Normal'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("8:00")
+		horaFin = timeDesdeCadena("9:00")
+		puestosOcupados = []
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, puestosOcupados))
+		
+	def testReservaPuestoLibre(self):
+		'''Normal'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("8:00")
+		horaFin = timeDesdeCadena("9:00")
+		puestosOcupados = [ ("8:00","9:00") ]
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+	
+	def testReservaMaximaOcupacionLleno(self):
+		'''Normal'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("8:00")
+		horaFin = timeDesdeCadena("9:00")
+		puestosOcupados = [ ("8:00","9:00"), \
+							("8:00","9:00")  ]
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+	
+	def testReservaMaximaOcupacionContenido(self):
+		'''Esquina'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("8:01")
+		horaFin = timeDesdeCadena("8:59")
+		puestosOcupados = [ ("8:00","9:00"), \
+							("8:00","9:00")  ]	
+		self.assertFalse(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+	
+	def testReservaConCupoJusto(self):
+		'''Frontera'''
+		capacidad = 2
+		horaIni = timeDesdeCadena("8:00")
+		horaFin = timeDesdeCadena("10:00")
+		puestosOcupados = [ ("8:00","10:00"), \
+							("7:00","08:00"),("10:00","12:00")  ]
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
+	
+	def testReservaConCupoJusto1Minuto(self):
+		capacidad = 2
+		horaIni = timeDesdeCadena("08:02")
+		horaFin = timeDesdeCadena("08:03")
+		puestosOcupados = [ ("08:00","10:00"),                   \
+							("07:00","08:02"),("08:03","09:00")  ]
+		self.assertTrue(puedeReservarALas(horaIni, horaFin, capacidad, crearTuplasHorasDesdeListaCadena(puestosOcupados)))
 #===============================================================================
 #
 # 	
