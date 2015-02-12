@@ -9,6 +9,7 @@ def validarHorarioEstacionamiento(aperturaEst, finalEst, inicioReservaEst, final
 	'''
 		Chequea que el horario de estacionamiento de apertura y el horario de apertura 
 		de las reservas esten correctos.
+		
 	'''
 	if aperturaEst >= finalEst:
 		return (False, 'El horario de apertura debe ser menor al horario de cierre')
@@ -84,14 +85,12 @@ def puedeReservarALas(horaIni,horaFin,capacidad,tablaMarzullo):
 	return True
 
 def timeDesdeCadena(timeCad):
-	'''
-	Funcion que dado una fecha en formato string, devuelve el datetime
-	'''
+	'Funcion que dado una fecha en formato string, devuelve una instancia de Time'
 	return datetime.datetime.strptime(timeCad, "%H:%M") # "%Y-%m-%d %H:%M" formato para fechas
 
 def crearTuplasHorasDesdeListaCadena(listaTuplas):
 	'''
-	Convierte tuplas de string a datetime
+	Convierte tuplas de string a time
 	'''
 	listaHora = []
 	
