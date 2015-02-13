@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts       import render
+from django.shortcuts       import render , redirect
 from decimal import Decimal
 from estacionamientos.controller import *
-from estacionamientos.forms      import EstacionamientoExtendedForm,\
-    DefinirTarifa
+from estacionamientos.forms      import EstacionamientoExtendedForm, DefinirTarifa
 from estacionamientos.forms      import EstacionamientoForm
 from estacionamientos.forms      import EstacionamientoReserva
 from estacionamientos.models     import Estacionamiento, ReservasModel 
+from django.core.context_processors import request
 
-
-tablaMarzullo = []
+datosReservaActual = (-1,-1)
 
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
@@ -97,11 +96,39 @@ def estacionamiento_detail(request, _id):
 
     return render(request, 'estacionamiento.html', {'form': form, 'estacionamiento': estacion})
 
+def estacionamiento_confirmar_reserva(request,id_est):
+    #global datosReservaActual
+
+    id_est = int(id_est)
+    # Verificamos que el objeto exista antes de continuar
+    try:
+        estacion = Estacionamiento.objects.get(id = id_est)
+    except ObjectDoesNotExist:
+        return render(request, '404.html')
+
+    # Si se hace un GET renderizamos los estacionamientos con su formulario
+    if request.method == 'GET':
+        return redirect('./reserva', _id=str(id_est))
+
+    # Si es un POST estan mandando un request
+    if request.method == 'POST':        
+        form = EstacionamientoReserva(request.POST)         
+        if form.is_valid():
+            inicio_reserva = form.cleaned_data['inicio']
+            final_reserva  = form.cleaned_data['final']
+            reservado = ReservasModel(
+                Estacionamiento = estacion,
+                InicioReserva = inicio_reserva,
+                FinalReserva = final_reserva
+            )
+            
+            reservado.save() 
+        return redirect('./reserva', _id=str(id_est))
+        
+    return redirect('./reserva', _id=str(id_est))
 
 def estacionamiento_reserva(request, _id):
-    
-    global tablaMarzullo
-    
+
     _id = int(_id)
     # Verificamos que el objeto exista antes de continuar
     try:
@@ -120,7 +147,6 @@ def estacionamiento_reserva(request, _id):
     if request.method == 'POST':
         
             form = EstacionamientoReserva(request.POST)
-            
             if form.is_valid():
                 inicio_reserva = form.cleaned_data['inicio']
                 final_reserva  = form.cleaned_data['final']
@@ -130,47 +156,49 @@ def estacionamiento_reserva(request, _id):
                 horario_aceptado = m_validado[0]
                 
                 # Si no es valido devolvemos el request
-                if not m_validado[0]:
+                if not horario_aceptado:
                     context = {'color':'red', 
                                'mensaje': m_validado[1]}
                     return render(request, 'templateMensaje.html', context)
-                if not horario_aceptado:
-                    return render(request, 'templateMensaje.html', {'color':'red', 'mensaje': m_validado[1]})
 
-                if len(tablaMarzullo) == 0:
-                    #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
-                    reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
-                    #Obtiene los valores que interesan de cada reserva en forma de una tupla
-                    reservas = reservas.values_list('InicioReserva', 'FinalReserva')
-                    tablaMarzullo = crearTablaMarzullo(reservas)
+                #Obtiene las reservas creadas para el estacionamiento con id igual a '_id'
+                reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
+                #Obtiene los valores que interesan de cada reserva en forma de una tupla
+                reservas = reservas.values_list('InicioReserva', 'FinalReserva')
 
                            
                 if puedeReservarALas(inicio_reserva, final_reserva,\
-                                estacion.NroPuesto,tablaMarzullo):
-                    
+                                estacion.NroPuesto,reservas):
+
                     precio = calculoPrecio(inicio_reserva, final_reserva, estacion.Tarifa)
+                    int_precio = precio.to_integral_value()
+                    if precio == int_precio:
+                        precio = int_precio
+                        
+                    datosReservaActual = (inicio_reserva, final_reserva,precio)
                     context = {'color':'green',
-                               'mensaje': precio}
-                    
-                    reservado = ReservasModel(
-                        Estacionamiento = estacion,
-                        InicioReserva = inicio_reserva,
-                        Puesto = -1,
-                        FinalReserva = final_reserva
-                    )
-                    
-                    reservado.save() # Agrega la nueva reserva a la base de datos
-                    
-                    return render(request, 'templateMensaje.html', context)
+                               'hora_inicio': str(inicio_reserva),
+                               'hora_final': str(final_reserva),
+                               'precio' : precio,
+                               'id':_id,
+                               'mensaje':'¡Reserva disponible!',
+                               'color':'green',
+                               }
+                    return render(request, 'estacionamientoConfirReserva.html', context)
                 
                 else:
-                    context = {'color':'red', 
-                               'error':'No hay un puesto disponible para ese horario'}
-                    return render(request, 'templateMensaje.html', context)
-    else:
-        form = EstacionamientoReserva()
-        context = {'form': form, 
-                   'estacionamiento': estacion}
+                    context = {'color':'red',
+                               'hora_inicio': str(inicio_reserva),
+                               'hora_final': str(final_reserva),
+                               'mensaje':'¡Reserva no disponible!',
+                               'id':_id
+                               }
+                    
+                    return render(request, 'estacionamientoConfirReserva.html', context)
+                
+    form = EstacionamientoReserva()
+    context = {'form': form, 
+               'estacionamiento': estacion}
 
     return render(request, 'estacionamientoReserva.html', context)
 
