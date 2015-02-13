@@ -1,0 +1,153 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="es"><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    
+    <meta charset="utf-8">
+    <title>
+      SAGE
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="{% static 'css/bootstrap.min.css'%}" rel="stylesheet">
+    <link href="{% static 'css/base.css'%}" rel="stylesheet">
+    <link href="{% static 'css/font-awesome.min.css'%}" rel="stylesheet">
+    
+   </head>
+
+ <body>
+        
+        <!-- Header -->
+<div id="top-nav" class="navbar navbar-inverse navbar-static-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="icon-toggle"></span>
+      </button>
+          <div class="navbar-brand" href="#">
+            SAGE
+          </div>
+    </div>
+  </div><!-- /container -->
+</div>
+<!-- /Header -->
+
+<!-- Main -->
+<div class="container">
+  
+  <!-- upper section -->
+  <div class="row">
+  <div class="col-sm-2">
+      <!-- left -->
+                <h3>
+            <i class="glyphicon glyphicon-briefcase">
+            </i>
+            Menú
+          </h3>
+      <hr>
+
+         <ul class="nav nav-stacked">
+            <li>
+              <a href="..">
+                <i class="fa fa-bus"></i>
+                Estacionamientos
+              </a>
+            </li>
+          </ul>
+
+          <br>
+          {% if estacionamiento.NroPuesto %}
+            <ul class="nav nav-stacked">
+              <li>
+                <a href="./reserva">
+                  <i class="fa fa-pencil-square-o"></i>
+                  Reservar
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+      <hr>
+      
+    </div><!-- /span-3 -->
+    <div class="col-md-4">
+      
+      <table class="table table-striped">
+        <thead>
+        </thead>
+        <tbody>
+		    <hr>
+			<tr><td class="active" colspan= 2><b><i class="glyphicon glyphicon-info-sign"></i> Datos de la reserva:</b></td></tr>          	
+			<tr>
+				<td><b><i class="glyphicon glyphicon-time"></i> Inicio:</b></td>
+				<td><b>{{hora_inicio}}</b></td>
+
+			</tr>
+			<tr>
+				<td><b><i class="glyphicon glyphicon-time"></i> Fin:</b></td>
+				<td><b>{{hora_final}}</b></td>
+			</tr>
+			<tr>
+				{% if precio%}
+					<td><b><i class="glyphicon glyphicon-transfer"></i> Costo:</b></td>
+					<td><b>{{precio}}</b></td>
+				{% endif %}
+			</tr>
+	           {% if precio %}
+		           <tr class = "alert alert-success"><td  colspan= 2>
+		           <span class = "glyphicon glyphicon-ok" ></span>
+	           {% else %}
+		           <tr class = "alert alert-warning"><td  colspan= 2>
+		           <span class = "glyphicon glyphicon-remove" ></span>
+	           {% endif %}
+           
+           <i class="col-md-8" style="color:{{color}};" > {{mensaje}} </i></td></tr>
+
+	        </tbody>
+	      </table>
+			
+            <div class="control-group">
+              <label>
+              </label>
+              <div class="controls">
+					<form action="./confirmar_reserva" method="post" >
+		             {% csrf_token %}
+						<input type="hidden" name="inicio" value="{{hora_inicio}}"  for='id_inicio'>
+						<input type="hidden" name="final" value="{{hora_final}}"   for='id_final'>
+						
+			          {% if precio %}
+						<button class="btn btn-primary" type='submit' onclick = "alert('Pago realizado con exito!')">
+		                  Reservar
+		                </button>			           
+			            <button type = "button" class="btn btn-primary" onClick=" window.location.href='';alert('Reserva cancelada!')">
+			           {%else%}
+			            <button type = "button" class="btn btn-primary" onClick=" window.location.href=''">
+			           {% endif %}
+			              Cancelar
+			            </button>
+					</form>
+		      
+                
+              </div>
+            </div>
+      		          	
+      
+      <hr>  
+      
+    </div>
+          
+        </div><!--/col-span-9-->
+    
+  </div><!--/row-->
+  <!-- /upper section -->
+  
+  <!-- lower section -->
+  <!--/row-->
+
+</div><!--/container-->
+
+
+    <script type="text/javascript" src="{% static 'js/jquery-2.1.1.min.js'%}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
+
+</body>
+
+</html>
