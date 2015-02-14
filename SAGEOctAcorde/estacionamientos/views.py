@@ -107,8 +107,7 @@ def estacionamiento_confirmar_reserva(request,id_est):
         return render(request, '404.html')
 
     # Si se hace un GET renderizamos los estacionamientos con su formulario
-    if request.method == 'GET':
-        return redirect('./reserva', _id=str(id_est))
+    if request.method == 'GET': return redirect('./reserva', _id=str(id_est))
 
     # Si es un POST estan mandando un request
     if request.method == 'POST':        
@@ -116,6 +115,7 @@ def estacionamiento_confirmar_reserva(request,id_est):
         if form.is_valid():
             inicio_reserva = form.cleaned_data['inicio']
             final_reserva  = form.cleaned_data['final']
+            
             reservado = ReservasModel(
                 Estacionamiento = estacion,
                 InicioReserva = inicio_reserva,
@@ -165,7 +165,6 @@ def estacionamiento_reserva(request, _id):
                 reservas = ReservasModel.objects.filter(Estacionamiento = estacion)
                 #Obtiene los valores que interesan de cada reserva en forma de una tupla
                 reservas = reservas.values_list('InicioReserva', 'FinalReserva')
-
                            
                 if puedeReservarALas(inicio_reserva, final_reserva,\
                                 estacion.NroPuesto,reservas):
@@ -175,23 +174,25 @@ def estacionamiento_reserva(request, _id):
                     if precio == int_precio:
                         precio = int_precio
                         
-                    datosReservaActual = (inicio_reserva, final_reserva,precio)
+                    duracion = calcularDuracion(inicio_reserva, final_reserva)
+                    cad_duracion = cadena_duracion(*duracion)
                     context = {'color':'green',
-                               'hora_inicio': str(inicio_reserva),
-                               'hora_final': str(final_reserva),
-                               'precio' : precio,
-                               'id':_id,
-                               'mensaje':'¡Reserva disponible!',
-                               'color':'green',
-                               }
+                                    'hora_inicio': str(inicio_reserva),
+                                    'hora_final': str(final_reserva),
+                                    'id':_id,
+                                    'precio' : precio,
+                                    'mensaje':'Reserva disponible!',
+                                    'color':'green',
+                                    'duracion':cad_duracion,
+                                   }
                     return render(request, 'estacionamientoConfirReserva.html', context)
                 
                 else:
                     context = {'color':'red',
                                'hora_inicio': str(inicio_reserva),
                                'hora_final': str(final_reserva),
-                               'mensaje':'¡Reserva no disponible!',
-                               'id':_id
+                               'id':_id,
+                                'mensaje':'Reserva no disponible!',
                                }
                     
                     return render(request, 'estacionamientoConfirReserva.html', context)

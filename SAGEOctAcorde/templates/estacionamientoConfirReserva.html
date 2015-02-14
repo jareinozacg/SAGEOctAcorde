@@ -86,9 +86,13 @@
 				<td><b>{{hora_final}}</b></td>
 			</tr>
 			<tr>
-				{% if precio%}
+				<td><b><i class="glyphicon glyphicon-time"></i> Duraci&oacuten:</b></td>
+				<td><b>{{duracion}} </b></td>
+			</tr>
+			<tr>
+				{% if precio %}
 					<td><b><i class="glyphicon glyphicon-transfer"></i> Costo:</b></td>
-					<td><b>{{precio}}</b></td>
+					<td><b>{{precio}} BsF </b></td>
 				{% endif %}
 			</tr>
 	           {% if precio %}
@@ -114,15 +118,15 @@
 						<input type="hidden" name="final" value="{{hora_final}}"   for='id_final'>
 						
 			          {% if precio %}
-						<button class="btn btn-primary" type='submit' onclick = "alert('Pago realizado con exito!')">
-		                  Reservar
-		                </button>			           
-			            <button type = "button" class="btn btn-primary" onClick=" window.location.href='';alert('Reserva cancelada!')">
+							<button class="btn btn-primary" type='submit' onclick = "alert('Pago realizado con exito!')">
+			                  Reservar
+			                </button>			           
+				            <button type = "button" class="btn btn-primary" onClick=" window.location.href='';alert('Reserva cancelada!')">
 			           {%else%}
-			            <button type = "button" class="btn btn-primary" onClick=" window.location.href=''">
+				            <button type = "button" class="btn btn-primary" onClick=" window.location.href=''">
 			           {% endif %}
-			              Cancelar
-			            </button>
+				              Cancelar
+				            </button>
 					</form>
 		      
                 

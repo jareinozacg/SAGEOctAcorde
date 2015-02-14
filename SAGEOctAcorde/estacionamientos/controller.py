@@ -107,7 +107,7 @@ def crearTuplasHorasDesdeListaCadena(listaTuplas):
 	Convierte tuplas de string a time
 	'''
 	listaHora = []
-	
+
 	for tupla in listaTuplas:
 		listaHora.append( (timeDesdeCadena(tupla[0]),timeDesdeCadena(tupla[1])) )
 	
@@ -127,3 +127,44 @@ def crearTablaMarzullo(reservas):
 
 	return listaTuplas
 
+
+#===============================================================================
+# ACTUALIZAR CUANDO SE TOME COMO MAXIMO 7 DIAS
+#===============================================================================
+def calcularDuracion(t_inicio,t_final):
+	'Regresa la diferencia entre dos time'
+	#dia_inicial = int(t_inicio.strftime('%d'))
+	hora_inicial = int(t_inicio.strftime(r'%H'))
+	min_inicial = int(t_inicio.strftime(r'%M')) + hora_inicial * 60
+
+	#dia_final = int(t_final.strftime('%d'))
+	hora_final = int(t_final.strftime(r'%H'))
+	min_final = int(t_final.strftime(r'%M'))  + hora_final * 60
+	
+	tt_mins = min_final - min_inicial
+	tt_horas = tt_mins // 60
+	tt_mins -= tt_horas * 60
+	
+	return (tt_horas,tt_mins)
+	
+def cadena_duracion(horas , minutos):
+	'Regresa una cadena de la forma : 3 Horas y 25 minutos. '
+
+	cadena = ""
+	if horas > 0:
+		cadena +=  "%d Hora" % horas
+		if horas > 1:
+			cadena += "s"
+			
+		if minutos > 0:
+			cadena += " y "
+			
+
+	if minutos > 0:
+		cadena +=  "%d Minuto" % minutos
+		if minutos > 1:
+			cadena +=  "s"
+			
+	cadena += "."
+	
+	return cadena
