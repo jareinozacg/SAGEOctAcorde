@@ -91,19 +91,15 @@
 			</tr>
 			<tr>
 				{% if precio %}
-					<td><b><i class="glyphicon glyphicon-transfer"></i> Costo:</b></td>
-					<td><b>{{precio}} BsF </b></td>
+					<td><b><i class="fa fa-money"></i> Costo:</b></td>
+					<td><b>{{precio}} Bs. </b></td>
 				{% endif %}
 			</tr>
-	           {% if precio %}
-		           <tr class = "alert alert-success"><td  colspan= 2>
-		           <span class = "glyphicon glyphicon-ok" ></span>
-	           {% else %}
-		           <tr class = "alert alert-warning"><td  colspan= 2>
-		           <span class = "glyphicon glyphicon-remove" ></span>
-	           {% endif %}
-           
-           <i class="col-md-8" style="color:{{color}};" > {{mensaje}} </i></td></tr>
+           <tr class = "alert alert-success">
+	           	<td  colspan= 2>
+	           		<i class="col-md-8" style="color:{{color}};" > {{mensaje}} </i>
+	           	</td>
+           	</tr>
 
 	        </tbody>
 	      </table>

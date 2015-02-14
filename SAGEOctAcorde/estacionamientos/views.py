@@ -181,7 +181,7 @@ def estacionamiento_reserva(request, _id):
                                     'hora_final': str(final_reserva),
                                     'id':_id,
                                     'precio' : precio,
-                                    'mensaje':'Reserva disponible!',
+                                    'mensaje':'¡Reserva disponible!',
                                     'color':'green',
                                     'duracion':cad_duracion,
                                    }
@@ -192,7 +192,7 @@ def estacionamiento_reserva(request, _id):
                                'hora_inicio': str(inicio_reserva),
                                'hora_final': str(final_reserva),
                                'id':_id,
-                                'mensaje':'Reserva no disponible!',
+                                'mensaje':'¡Reserva no disponible!',
                                }
                     
                     return render(request, 'estacionamientoConfirReserva.html', context)
