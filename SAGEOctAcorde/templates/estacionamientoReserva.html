@@ -11,9 +11,7 @@
     <link href="{% static 'css/bootstrap.min.css'%}" rel="stylesheet">
     <link href="{% static 'css/base.css'%}" rel="stylesheet">
     <link href="{% static 'css/font-awesome.min.css'%}" rel="stylesheet">
-    
    </head>
-
  <body>
         
         <!-- Header -->
@@ -187,12 +185,12 @@
               {% for field in form %}
                 <div class="control-group">
                   <div class="controls">
-                    <input type="text" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"><p>
+                    <input type="text"  onfocus="$('#ayuda_{{field.name}}').collapse('show')"  onblur="$('#ayuda_{{field.name}}').collapse('hide')" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"  aria-describedby="ayuda"><p>
                     {{ field.errors }}
+                    <div id="ayuda_{{field.name}}" class="help-block collapse">{{ field.help_text}}</div>
                   </div>
                 </div> 
               {% endfor %}
-                
                 <div class="control-group">
                   <label>
                   </label>
@@ -202,8 +200,6 @@
                     </button>
                   </div>
                 </div>
-                
-                
               </form>
               
               
@@ -231,6 +227,7 @@
 
     <script type="text/javascript" src="{% static 'js/jquery-2.1.1.min.js'%}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-collapse.js'%}"></script>
 
 </body>
 

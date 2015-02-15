@@ -65,8 +65,10 @@ class EstacionamientoExtendedForm(ModelForm):
 
 
 class EstacionamientoReserva(forms.Form):
-    inicio = forms.TimeField(label = 'Horario de inicio')
-    final = forms.TimeField(label = 'Horario final')
+    inicio = forms.TimeField(label = 'Horario de inicio',\
+                             help_text="Hora de inicio de la reserva en formato militar. Ejemplo : 13:01")
+    final = forms.TimeField(label = 'Horario final',\
+                             help_text="Hora final de la reserva en formato militar. Ejemplo : 14:01")
 
 class DefinirTarifa(ModelForm):
     class Meta:
