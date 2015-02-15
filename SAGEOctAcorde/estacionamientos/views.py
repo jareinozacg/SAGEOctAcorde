@@ -45,12 +45,15 @@ def estacionamientos_all(request):
                 obj.save()
                 # Recargamos los estacionamientos ya que acabamos de agregar
                 estacionamientos = Estacionamiento.objects.all()
+            else:
+                context = {'error':1}
     # Si no es un POST es un GET, y mandamos un formulario vacio
     else:
         form = EstacionamientoForm()
+        context = {}
         
-    context = {'form': form, 
-               'estacionamientos': estacionamientos}
+    context.update({'form': form, 
+               'estacionamientos': estacionamientos})
     return render(request, 'base.html', context)
 
 def estacionamiento_detail(request, _id):
