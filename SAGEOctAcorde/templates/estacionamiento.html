@@ -191,16 +191,14 @@
 	             {% if field.label == 'Tarifa' %}
 	              	{{ field }}
 	             {% else %}
-                    <input type="text" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"><p>
-                    {{ field.errors }} 
+                    <input type="text" class="form-control" name="{{field.name}}" 
+                    value="{{ field.value}}" placeholder="{{field.label}}" for="id_{{field.name}}"></p>
+                    	{{ field.errors }}  
 	          	{% endif %}
 	          	</div>
               </div>
               {% endfor %}
-                
                 <div class="control-group">
-                  <label>
-                  </label>
                   <div class="controls">
                     <button type="submit" class="btn btn-primary">
                       Parametrizar Estacionamiento

@@ -49,19 +49,27 @@ class EstacionamientoForm(forms.Form):
                 )
 
 class EstacionamientoExtendedForm(ModelForm):
+    
     Tarifa = forms.ModelChoiceField(
         queryset=Tarifa.objects.all(), 
         empty_label="Seleccione tipo de Tarifa",
         required = True
         )
 
-    monto = forms.DecimalField( max_digits = 10, decimal_places=2,
-                                 label = 'Monto', required = False)
+    monto = forms.DecimalField( max_digits = 10, decimal_places=2, label = 'Monto', 
+                                required = False)
     
     class Meta:
         model = Estacionamiento
         exclude = ['Propietario','Nombre','Direccion', 'Telefono_1', 'Telefono_2','Telefono_3',
                     'Email_1','Email_2','Rif', 'Tarifa']
+        
+    def clean(self):
+        if self.cleaned_data['monto'] <= 0.0 :
+            raise forms.ValidationError({'monto': ["El valor debe ser positivo.",]})
+        if self.cleaned_data['NroPuesto'] <= 0.0:
+            raise forms.ValidationError({'NroPuesto': ["El valor debe ser positivo.",]})
+        super(Form, self).clean()
 
 
 class EstacionamientoReserva(forms.Form):

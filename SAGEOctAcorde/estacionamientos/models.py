@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.forms import ModelForm
 from _overlapped import NULL
+from datetime import datetime, timedelta
 
 
 class Estacionamiento(models.Model):
@@ -21,12 +22,12 @@ class Estacionamiento(models.Model):
 
 	Rif = models.CharField(max_length = 12)
 
-	Apertura = models.TimeField(blank = True, null = True)
-	Cierre = models.TimeField(blank = True, null = True)
-	Reservas_Inicio = models.TimeField(blank = True, null = True)
-	Reservas_Cierre = models.TimeField(blank = True, null = True)
-	NroPuesto = models.IntegerField(blank = True, null = True)
-	Tarifa = models.ForeignKey('Tarifa', null = True, blank = True)
+	Apertura = models.TimeField(blank = True, null = True, default='00:00')
+	Cierre = models.TimeField(blank = True, null = True, default='23:59')
+	Reservas_Inicio = models.TimeField(blank = True, null = True, default='00:00')
+	Reservas_Cierre = models.TimeField(blank = True, null = True, default='23:59')
+	NroPuesto = models.IntegerField(blank = True, null = True, default = 10)
+	Tarifa = models.ForeignKey('Tarifa', null = True, blank = True, default = 10.00)
 
 
 class ReservasModel(models.Model):
