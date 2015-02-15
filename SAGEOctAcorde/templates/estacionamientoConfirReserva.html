@@ -93,9 +93,12 @@
 				{% if precio %}
 					<td><b><i class="fa fa-money"></i> Costo:</b></td>
 					<td><b>{{precio}} Bs. </b></td>
+				</tr>
+	           <tr class = "alert alert-success">
+	           {% else %}
+				</tr>
+	           <tr class = "alert alert-danger">
 				{% endif %}
-			</tr>
-           <tr class = "alert alert-success">
 	           	<td  colspan= 2>
 	           		<i class="col-md-8" style="color:{{color}};" > {{mensaje}} </i>
 	           	</td>

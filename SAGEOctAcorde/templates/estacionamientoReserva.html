@@ -11,9 +11,7 @@
     <link href="{% static 'css/bootstrap.min.css'%}" rel="stylesheet">
     <link href="{% static 'css/base.css'%}" rel="stylesheet">
     <link href="{% static 'css/font-awesome.min.css'%}" rel="stylesheet">
-    
    </head>
-
  <body>
         
         <!-- Header -->
@@ -180,19 +178,10 @@
             </div>
             <div class="panel-body">
 
-      
-              
+
               <form action="./reserva" method="post" class="form form-vertical">
               {% csrf_token %}
-              {% for field in form %}
-                <div class="control-group">
-                  <div class="controls">
-                    <input type="text" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"><p>
-                    {{ field.errors }}
-                  </div>
-                </div> 
-              {% endfor %}
-                
+              {%include "form_validacion.html" %}
                 <div class="control-group">
                   <label>
                   </label>
@@ -202,8 +191,6 @@
                     </button>
                   </div>
                 </div>
-                
-                
               </form>
               
               
@@ -231,6 +218,7 @@
 
     <script type="text/javascript" src="{% static 'js/jquery-2.1.1.min.js'%}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.-collapse.js'%}"></script>
 
 </body>
 

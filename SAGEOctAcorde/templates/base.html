@@ -55,19 +55,7 @@
                 Estacionamientos
               </a>
             </li>
-          </ul>
-
- <!--           <ul class="nav nav-stacked">
-            <li>
-              <a href="./hola">
-                <i class="fa fa-bus"></i>
-                blabla
-              </a>
-            </li>
-          </ul> -->
-
-
-          
+          </ul>          
           <hr>
           
         </div>
@@ -122,15 +110,7 @@
               
               <form action="." method="post" class="form form-vertical">
               {% csrf_token %}
-              {% for field in form %}
-                <div class="control-group">
-                  <div class="controls">
-                    <input type="text" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"><p>
-                    {{ field.errors }}
-                  </div>
-                </div> 
-              {% endfor %}
-                
+              {%include "form_validacion.html" %}                
                 <div class="control-group">
                   <label>
                   </label>

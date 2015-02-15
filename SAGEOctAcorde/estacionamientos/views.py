@@ -10,10 +10,10 @@ from estacionamientos.forms      import EstacionamientoReserva
 from estacionamientos.models     import Estacionamiento, ReservasModel 
 from django.core.context_processors import request
 
+
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
-    # Si se hace un POST a esta vista implica que se quiere agregar un nuevo
-    # estacionamiento
+    
     estacionamientos = Estacionamiento.objects.all()
     
     if request.method == 'POST':
@@ -27,8 +27,6 @@ def estacionamientos_all(request):
                            'mensaje':'No se pueden agregar más estacionamientos'}
                 return render(request, 'templateMensaje.html', context)
 
-            # Si el formulario es valido, entonces creamos un objeto con
-            # el constructor del modelo
             if form.is_valid():
                 obj = Estacionamiento(
                         Propietario = form.cleaned_data['propietario'],
@@ -44,12 +42,15 @@ def estacionamientos_all(request):
                 obj.save()
                 # Recargamos los estacionamientos ya que acabamos de agregar
                 estacionamientos = Estacionamiento.objects.all()
+            else:
+                context = {'error':1}
     # Si no es un POST es un GET, y mandamos un formulario vacio
     else:
         form = EstacionamientoForm()
+        context = {}
         
-    context = {'form': form, 
-               'estacionamientos': estacionamientos}
+    context.update({'form': form, 
+               'estacionamientos': estacionamientos})
     return render(request, 'base.html', context)
 
 def estacionamiento_detail(request, _id):
@@ -65,7 +66,6 @@ def estacionamiento_detail(request, _id):
             # Leemos el formulario
             form = EstacionamientoExtendedForm(request.POST)
             
-            # Si el formulario
             if form.is_valid():
                 hora_in = form.cleaned_data['Apertura']
                 hora_out = form.cleaned_data['Cierre']
@@ -187,10 +187,14 @@ def estacionamiento_reserva(request, _id):
                                }
                     
                     return render(request, 'estacionamientoConfirReserva.html', context)
-                
-    form = EstacionamientoReserva()
-    context = {'form': form, 
-               'estacionamiento': estacion}
+            else:
+                context = {'error':1}
+    else:
+        context = {}
+        form = EstacionamientoReserva()
+    
+    context.update({'form': form, 
+               'estacionamiento': estacion})
 
     return render(request, 'estacionamientoReserva.html', context)
 
