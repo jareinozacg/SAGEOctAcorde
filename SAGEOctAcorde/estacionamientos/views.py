@@ -10,8 +10,6 @@ from estacionamientos.forms      import EstacionamientoReserva
 from estacionamientos.models     import Estacionamiento, ReservasModel 
 from django.core.context_processors import request
 
-datosReservaActual = (-1,-1)
-
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
     # Si se hace un POST a esta vista implica que se quiere agregar un nuevo
@@ -97,7 +95,6 @@ def estacionamiento_detail(request, _id):
     return render(request, 'estacionamiento.html', {'form': form, 'estacionamiento': estacion})
 
 def estacionamiento_confirmar_reserva(request,id_est):
-    #global datosReservaActual
 
     id_est = int(id_est)
     # Verificamos que el objeto exista antes de continuar
