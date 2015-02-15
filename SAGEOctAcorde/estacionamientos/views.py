@@ -133,12 +133,6 @@ def estacionamiento_reserva(request, _id):
     except ObjectDoesNotExist:
         return render(request, '404.html')
 
-    # Si se hace un GET renderizamos los estacionamientos con su formulario
-    if request.method == 'GET':
-        form = EstacionamientoReserva()
-        context = {'form': form, 
-                   'estacionamiento': estacion}
-        return render(request, 'estacionamientoReserva.html', context)
 
     # Si es un POST estan mandando un request
     if request.method == 'POST':
