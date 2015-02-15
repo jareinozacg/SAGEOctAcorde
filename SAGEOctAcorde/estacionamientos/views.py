@@ -13,8 +13,7 @@ from django.core.context_processors import request
 
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
-    # Si se hace un POST a esta vista implica que se quiere agregar un nuevo
-    # estacionamiento
+    
     estacionamientos = Estacionamiento.objects.all()
     
     if request.method == 'POST':
@@ -28,8 +27,6 @@ def estacionamientos_all(request):
                            'mensaje':'No se pueden agregar más estacionamientos'}
                 return render(request, 'templateMensaje.html', context)
 
-            # Si el formulario es valido, entonces creamos un objeto con
-            # el constructor del modelo
             if form.is_valid():
                 obj = Estacionamiento(
                         Propietario = form.cleaned_data['propietario'],
@@ -69,7 +66,6 @@ def estacionamiento_detail(request, _id):
             # Leemos el formulario
             form = EstacionamientoExtendedForm(request.POST)
             
-            # Si el formulario
             if form.is_valid():
                 hora_in = form.cleaned_data['Apertura']
                 hora_out = form.cleaned_data['Cierre']
@@ -99,7 +95,6 @@ def estacionamiento_detail(request, _id):
     return render(request, 'estacionamiento.html', {'form': form, 'estacionamiento': estacion})
 
 def estacionamiento_confirmar_reserva(request,id_est):
-    #global datosReservaActual
 
     id_est = int(id_est)
     # Verificamos que el objeto exista antes de continuar
