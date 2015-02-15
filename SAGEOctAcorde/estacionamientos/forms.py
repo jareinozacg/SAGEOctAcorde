@@ -23,19 +23,27 @@ class EstacionamientoForm(forms.Form):
                                 regex = '^[a-zA-ZáéíóúñÑÁÉÍÓÚ ]+$',
                                 message = 'Sólo debe contener letras.'
                         )
-                    ]
+                    ],
+                    help_text="Nombre del propietario del estacionamiento."
                 )
 
-    nombre = forms.CharField(required = True, label = "Nombre")
+    nombre = forms.CharField(required = True, label = "Nombre",
+                    help_text="Nombre del estacionamiento.")
 
-    direccion = forms.CharField(required = True)
+    direccion = forms.CharField(required = True,
+                    help_text="Dirección del estacionamiento.")
 
-    telefono_1 = forms.CharField(required = False, validators = [phone_validator])
-    telefono_2 = forms.CharField(required = False, validators = [phone_validator])
-    telefono_3 = forms.CharField(required = False, validators = [phone_validator])
+    telefono_1 = forms.CharField(required = False, validators = [phone_validator],
+                    help_text="Telefono de contacto. Ejemplo : 0426-1234567")
+    telefono_2 = forms.CharField(required = False, validators = [phone_validator],
+                    help_text="Telefono de contacto. Ejemplo : 0426-1234567")
+    telefono_3 = forms.CharField(required = False, validators = [phone_validator],
+                    help_text="Telefono de contacto. Ejemplo : 0426-1234567")
 
-    email_1 = forms.EmailField(required = False)
-    email_2 = forms.EmailField(required = False)
+    email_1 = forms.EmailField(required = False,
+                    help_text="Correo de contacto. Ejemplo : octacorde@gmail.com")
+    email_2 = forms.EmailField(required = False,
+                    help_text="Correo de contacto. Ejemplo : octacorde@gmail.com")
 
     rif = forms.CharField(
                     required = True,
@@ -45,7 +53,8 @@ class EstacionamientoForm(forms.Form):
                                 regex = '^[JVD]-?\d{8}-?\d$',
                                 message = 'Introduzca un RIF con un formato válido.'
                         )
-                    ]
+                    ],
+                    help_text="Rif del estacionamiento. Ejemplo : J-00000000-0"
                 )
 
 class EstacionamientoExtendedForm(ModelForm):

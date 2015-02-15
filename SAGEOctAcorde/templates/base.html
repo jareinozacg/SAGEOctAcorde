@@ -125,8 +125,9 @@
               {% for field in form %}
                 <div class="control-group">
                   <div class="controls">
-                    <input type="text" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"><p>
+                    <input type="text"  onfocus="$('#ayuda_{{field.name}}').collapse('show')"  onblur="$('#ayuda_{{field.name}}').collapse('hide')"  class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"><p>
                     {{ field.errors }}
+                    <div id="ayuda_{{field.name}}" class="help-block collapse">{{ field.help_text}}</div>
                   </div>
                 </div> 
               {% endfor %}
