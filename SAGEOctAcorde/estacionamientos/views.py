@@ -57,6 +57,9 @@ def estacionamientos_all(request):
 def estacionamiento_detail(request, _id):
 
     _id = int(_id)
+    min_hora = datetime.time(0, 0)
+    max_hora = datetime.time(23, 59)
+    
     # Verificamos que el objeto exista antes de continuar
     try:
         estacion = Estacionamiento.objects.get(id = _id)
@@ -66,30 +69,57 @@ def estacionamiento_detail(request, _id):
     if request.method == 'POST':
             # Leemos el formulario
             form = EstacionamientoExtendedForm(request.POST)
-            
             # Si el formulario
             if form.is_valid():
-                hora_in = form.cleaned_data['Apertura']
-                hora_out = form.cleaned_data['Cierre']
-                reserva_in = form.cleaned_data['Reservas_Inicio']
-                reserva_out = form.cleaned_data['Reservas_Cierre']
-
+                if form.cleaned_data['Apertura']:
+                    hora_in = form.cleaned_data['Apertura']
+                elif estacion.Apertura:
+                    hora_in = estacion.Apertura
+                else:
+                    hora_in = min_hora
+                    
+                if form.cleaned_data['Cierre']:
+                    hora_out = form.cleaned_data['Cierre']
+                elif estacion.Cierre:
+                    hora_out = estacion.Cierre 
+                else:
+                    hora_out = max_hora
+                    
+                if form.cleaned_data['Reservas_Inicio']:
+                    reserva_in = form.cleaned_data['Reservas_Inicio']
+                elif estacion.Reservas_Inicio:
+                    reserva_in = estacion.Reservas_Inicio 
+                else:
+                    reserva_in = min_hora
+                
+                if form.cleaned_data['Reservas_Cierre']:
+                    reserva_out = form.cleaned_data['Reservas_Cierre']
+                elif estacion.Reservas_Cierre:
+                    reserva_out = estacion.Reservas_Cierre
+                else:
+                    reserva_out = max_hora
+                
                 m_validado = validarHorarioEstacionamiento(hora_in, hora_out, reserva_in, reserva_out)
+                
                 if not m_validado[0]:
                     context = {'color':'red', 
                                'mensaje': m_validado[1]}
                     return render(request, 'templateMensaje.html', context)
 
-                estacion.Tarifa = form.cleaned_data['Tarifa']
+                if form.cleaned_data['Tarifa']:
+                    estacion.Tarifa = form.cleaned_data['Tarifa']
+                
                 estacion.Apertura = hora_in
                 estacion.Cierre = hora_out
                 estacion.Reservas_Inicio = reserva_in
                 estacion.Reservas_Cierre = reserva_out
-                estacion.NroPuesto = form.cleaned_data['NroPuesto']
-                
-                estacion.Tarifa.tarifa = Decimal(form.cleaned_data['monto'])
+                if form.cleaned_data['NroPuesto']:
+                    estacion.NroPuesto = form.cleaned_data['NroPuesto']
+                if form.cleaned_data['monto']:
+                    estacion.Tarifa.tarifa = Decimal(form.cleaned_data['monto'])
+                    estacion.Tarifa.save()
                 estacion.save()
-                estacion.Tarifa.save()
+                
                 
     else:
         form = EstacionamientoExtendedForm()

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
+from decimal import Decimal
 from django.forms import ModelForm
 from estacionamientos.models import *
 from django.core.validators import RegexValidator
@@ -53,7 +54,7 @@ class EstacionamientoExtendedForm(ModelForm):
     Tarifa = forms.ModelChoiceField(
         queryset=Tarifa.objects.all(), 
         empty_label="Seleccione tipo de Tarifa",
-        required = True
+        required = False
         )
 
     monto = forms.DecimalField( max_digits = 10, decimal_places=2, label = 'Monto', 
@@ -65,11 +66,13 @@ class EstacionamientoExtendedForm(ModelForm):
                     'Email_1','Email_2','Rif', 'Tarifa']
         
     def clean(self):
-        if self.cleaned_data['monto'] <= 0.0 :
-            raise forms.ValidationError({'monto': ["El valor debe ser positivo.",]})
-        if self.cleaned_data['NroPuesto'] <= 0.0:
-            raise forms.ValidationError({'NroPuesto': ["El valor debe ser positivo.",]})
-        super(Form, self).clean()
+        if  isinstance(self.cleaned_data['monto'], Decimal):
+            if self.cleaned_data['monto'] <= 0.0 :
+                raise forms.ValidationError({'monto': ["El valor debe ser positivo.",]})
+        if  isinstance(self.cleaned_data['NroPuesto'], Decimal):
+            if self.cleaned_data['NroPuesto'] <= 0.0:
+                raise forms.ValidationError({'NroPuesto': ["El valor debe ser positivo.",]})
+        super(EstacionamientoExtendedForm, self).clean()
 
 
 class EstacionamientoReserva(forms.Form):
