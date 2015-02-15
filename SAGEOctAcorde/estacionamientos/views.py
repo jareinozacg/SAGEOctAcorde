@@ -10,7 +10,6 @@ from estacionamientos.forms      import EstacionamientoReserva
 from estacionamientos.models     import Estacionamiento, ReservasModel 
 from django.core.context_processors import request
 
-datosReservaActual = (-1,-1)
 
 # Usamos esta vista para procesar todos los estacionamientos
 def estacionamientos_all(request):
@@ -136,12 +135,6 @@ def estacionamiento_reserva(request, _id):
     except ObjectDoesNotExist:
         return render(request, '404.html')
 
-    # Si se hace un GET renderizamos los estacionamientos con su formulario
-    if request.method == 'GET':
-        form = EstacionamientoReserva()
-        context = {'form': form, 
-                   'estacionamiento': estacion}
-        return render(request, 'estacionamientoReserva.html', context)
 
     # Si es un POST estan mandando un request
     if request.method == 'POST':
@@ -196,10 +189,14 @@ def estacionamiento_reserva(request, _id):
                                }
                     
                     return render(request, 'estacionamientoConfirReserva.html', context)
-                
-    form = EstacionamientoReserva()
-    context = {'form': form, 
-               'estacionamiento': estacion}
+            else:
+                context = {'error':1}
+    else:
+        context = {}
+        form = EstacionamientoReserva()
+    
+    context.update({'form': form, 
+               'estacionamiento': estacion})
 
     return render(request, 'estacionamientoReserva.html', context)
 

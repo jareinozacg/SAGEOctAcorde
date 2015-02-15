@@ -178,15 +178,30 @@
             </div>
             <div class="panel-body">
 
-      
-              
+
               <form action="./reserva" method="post" class="form form-vertical">
               {% csrf_token %}
               {% for field in form %}
-                <div class="control-group">
+                <div class="control-group has-feedback">
                   <div class="controls">
-                    <input type="text"  onfocus="$('#ayuda_{{field.name}}').collapse('show')"  onblur="$('#ayuda_{{field.name}}').collapse('hide')" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"  aria-describedby="ayuda"><p>
-                    {{ field.errors }}
+						{% if field.errors %}
+		                    <input type="text"  onfocus="$('#ayuda_{{field.name}}').collapse('show')"  onblur="$('#ayuda_{{field.name}}').collapse('hide')" class="form-control alert-danger" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"  aria-describedby="ayuda"><p>                    
+		                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+							<div class = "alert alert-danger">
+								<ol>
+		    					{% for error in field.errors %}
+							        <li>{{ error|escape }}</li>
+							    {% endfor %}
+							    </ol>
+							</div>
+						{% else %}
+							{% if  error  %}
+			                    <input type="text"  onfocus="$('#ayuda_{{field.name}}').collapse('show')"  onblur="$('#ayuda_{{field.name}}').collapse('hide')" class="form-control alert-success" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"  aria-describedby="ayuda" value = {{field.value}}><p>                    
+			                    <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+			                {% else %}
+			                    <input type="text"  onfocus="$('#ayuda_{{field.name}}').collapse('show')"  onblur="$('#ayuda_{{field.name}}').collapse('hide')" class="form-control" name="{{field.name}}" placeholder="{{field.label}}" for="id_{{field.name}}"  aria-describedby="ayuda"><p>                    
+		                    {% endif %}
+						{% endif %}
                     <div id="ayuda_{{field.name}}" class="help-block collapse">{{ field.help_text}}</div>
                   </div>
                 </div> 
