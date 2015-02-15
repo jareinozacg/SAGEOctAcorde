@@ -65,8 +65,11 @@ class EstacionamientoExtendedForm(ModelForm):
 
 
 class EstacionamientoReserva(forms.Form):
-    inicio = forms.TimeField(label = 'Horario de inicio')
-    final = forms.TimeField(label = 'Horario final')
+    f_inicio = forms.DateTimeField(label='Fecha inicio')
+    inicio = forms.TimeField(label = 'Hora de Inicio')
+    f_final = forms.DateTimeField(label='Fecha final')
+    final = forms.TimeField(label = 'Final')
+
 
 class DefinirTarifa(ModelForm):
     class Meta:
